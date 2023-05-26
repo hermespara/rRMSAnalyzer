@@ -3,6 +3,11 @@
 
 # rRMSAnalyzer: package to analyze RiboMethSeq data
 
+<!-- badges: start -->
+
+[![R-CMD-check](https://github.com/hermespara/rRMSAnalyzer/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/hermespara/rRMSAnalyzer/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
+
 RiboMethSeq is an RNAseq-based approach to analyze 2’O-ribose
 methylation (2’Ome).
 

@@ -17,6 +17,10 @@ library(rRMSAnalyzer)
 
 # rRMSAnalyzer: package to analyze RiboMethSeq data
 
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/hermespara/rRMSAnalyzer/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/hermespara/rRMSAnalyzer/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
+
 RiboMethSeq is an RNAseq-based approach to analyze 2'O-ribose methylation (2'Ome).
 
 rRMSAnalyzer is an R package that provides a set of easy-to-use functions to evaluate 2'Ome levels by computing C-scores from RiboMethSeq read end counts as input.
