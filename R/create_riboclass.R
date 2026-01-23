@@ -128,12 +128,31 @@ new_riboclass <- function(count_path,
     
   }
   
+  # Construction of SummarizedExperiment
   
-  # Merge metadata and counts in RiboClass.
-  RiboClass <- list(data = rna_counts_dt, metadata = metadata,rna_names = rna_names_df, has_cscore = FALSE)
-  class(RiboClass) <- "RiboClass"
+  # 1. Assay (Counts)
+  # Extract counts from each dataframe to form a matrix
+  # We assume all dataframes have the same positions (checked in .read_count_files)
+  counts_matrix <- vapply(rna_counts_dt, function(x) x$count, numeric(nrow(rna_counts_dt[[1]])))
   
-  return(RiboClass)
+  # 2. RowData (Positions)
+  # Use the first sample to define positions
+  row_data <- rna_counts_dt[[1]][, c("rna", "rnapos", "site")]
+  # Make sure 'rna' is a factor as expected downstream
+  row_data$rna <- factor(row_data$rna)
+
+  # 3. ColData (Metadata)
+  col_data <- metadata
+  
+  # Create SummarizedExperiment
+  se <- SummarizedExperiment::SummarizedExperiment(
+    assays = list(counts = counts_matrix),
+    rowData = row_data,
+    colData = col_data,
+    metadata = list(rna_names = rna_names_df) # Store rna_names in generic metadata slot
+  )
+  
+  return(se)
 }
 
 
