@@ -1,18 +1,5 @@
-# (internal) Compute a c-score for all position of a single RNA
-.compute_rna_cscore <- function(ds, flanking = 6, method) {
-  # check that all parameters exist
-  if (is.null(ds)) {
-    stop("MISSING parameter. Please specify a data frame <ds>.")
-  }
-  
-  # remove any cscore-related columns if they already exist
-  ds[, c("flanking_median", "flanking_mad", "flanking_mean", "cscore")] <- list(NULL)
-  # get the count column
-  data_counts_col <- "count"
-  
-  ## c-score computation ##
-  count <- ds[, data_counts_col]
-  
+# (internal) Compute a c-score for a vector of counts for a single RNA
+.compute_vec_cscore <- function(count, flanking = 6, method) {
   # First, we compute the window around each position (The latter
   # is excluded)
   if (method == "median") {
@@ -26,36 +13,33 @@
   }
   # Because we started at the 1+flanking position, we prepend NA at
   # the beginning to match the original vector's size.
-  flanking_values <- c(rep(NA, flanking),flanking_values)
-  
+  flanking_values <- c(rep(NA, flanking), flanking_values)
+
   if (method == "median") {
-    ds[, "flanking_median"] <- flanking_values
-    scorec_median_raw <- 1 - ds[, data_counts_col]/ds[, "flanking_median"]
-    ds[, "cscore"] <- pmax(scorec_median_raw,0)
+    scorec_raw <- 1 - count / flanking_values
   } else if (method == "mean") {
-    ds[, "flanking_mean"] <- flanking_values
-    scorec_mean_raw <- 1 - ds[, data_counts_col]/ds[, "flanking_mean"]
-    ds[, "cscore"] <- pmax(scorec_mean_raw,0)
+    scorec_raw <- 1 - count / flanking_values
   }
-  return(ds)
+  return(pmax(scorec_raw, 0))
 }
 
-# (internal) Compute c-score for a single sample
-.compute_sample_cscore <- function(sample_df = NULL, flanking = 6, method) {
-  data_rna_col <- "rna"
-  sample_df[, data_rna_col] <- as.factor(sample_df[, data_rna_col])
-  RNA_counts_list <- split(sample_df, sample_df[, data_rna_col])
-  sample_score <- lapply(RNA_counts_list, .compute_rna_cscore, flanking,
-                         method)
-  
-  return(dplyr::bind_rows(sample_score))
-  
+# (internal) Compute c-score for one sample (all RNAs)
+.compute_sample_cscore_se <- function(sample_counts, rna_factor, flanking, method) {
+  # split counts by RNA
+  counts_by_rna <- split(sample_counts, rna_factor)
+
+  # compute score for each RNA
+  scores_by_rna <- lapply(counts_by_rna, .compute_vec_cscore, flanking, method)
+
+  # unsplit to get back original order
+  scores <- unsplit(scores_by_rna, rna_factor)
+  return(scores)
 }
 
-#' Compute c-score for all samples in a riboclass
-#' 
+#' Compute c-score for all samples in a SummarizedExperiment
+#'
 #' @description
-#' 
+#'
 # The C-score corresponds to the 2'Ome level at a RNA position. The
 # C-score represents a drop in the end read coverage at a given
 # position compared to the environmental coverage, as described by
@@ -63,56 +47,66 @@
 # 2'Ome at the position of interest), of 1 (i.e., all the RNA
 # molecules are 2'Ome at the position of interest) and of ]0:1[
 # (i.e., a mix of un-methylated and methylated RNA molecules).
-#' 
+#'
 #' In this package, the C-score is calculated for every position. As it can be
 #' useful to find positions not yet identified as methylated.
-#' 
+#'
 #' This function is called automatically when loading data or after adjusting
 #' biases in end read count data with ComBat-seq. It can be still called
 #' manually to modify how the C-score is currently computed.
-#' 
+#'
 #' For each RNA, the first and last positions cannot be calculated if the local
 #' coverage is shorter than the flanking argument. Their value will be NA instead.
-#' 
+#'
 #' @references Birkedal, U., Christensen-Dalsgaard, M., Krogh, N., Sabarinathan,
 #' R., Gorodkin, J. and Nielsen, H. (2015),
 #' Profiling of Ribose Methylations in RNA by High-Throughput Sequencing.
 #' Angew. Chem. Int. Ed., 54: 451-455. https://doi.org/10.1002/anie.201408362
-#' 
+#'
 #'
 #' @md
-#' @param ribo A RiboClass object.
+#' @param ribo A SummarizedExperiment object.
 #' @param flanking Size of the local coverage.
 #' @param method Computation method of the local coverage. Either 'median' or 'mean'.
 #' @param ncores Number of cores to use in case of multithreading.
-#' @return A RiboClass with c-score columns appended to each sample's data.
+#' @return A SummarizedExperiment with c-score assay added.
 #' @export
 #'
 #' @examples
-#' data('ribo_toy')
-#' ribo_subsetted <- keep_ribo_samples(ribo_toy,'S1')
-#' ribo_with_cscore_med <- compute_cscore(ribo_subsetted, ncores = 2)
-#' ribo_with_cscore_mean <- compute_cscore(ribo_subsetted, method = 'mean', ncores = 2)
-#' 
+#' data("ribo_toy")
+#' # ribo_with_cscore_med <- compute_cscore(ribo_toy, ncores = 2)
+#'
 compute_cscore <- function(ribo = NULL, flanking = 6, method = "median",
                            ncores = 1) {
-  if (!(method %in% c("median", "mean")))
-    stop("method can be either \"mean\" or \"median\"")
-  dt <- ribo["data"]  #we only need the counts to compute the score
-  
-  
-  # Experimental : Multithreading is 3x faster than single-thread
-  # TODO : implement
+  check_is_se(ribo)
+  check_type(flanking, "numeric", "flanking", length = 1)
+  check_type(method, "character", "method", length = 1)
+  check_in_set(method, c("median", "mean"), "method")
+  check_type(ncores, "numeric", "ncores", length = 1)
+
+  counts <- SummarizedExperiment::assay(ribo, "counts")
+  rnas <- SummarizedExperiment::rowData(ribo)$rna
+
+  # Use parallel processing or standard apply
   if (ncores > 1) {
-    samples_czscore <- parallel::mclapply(dt[["data"]], .compute_sample_cscore,
-                                          flanking, method, mc.cores = ncores)
+    # Parallel apply over columns (samples)
+    # We need to transpose the result of mclapply if iterating over cols?
+    # Actually mclapply over columns of a matrix isn't direct.
+    # We can use index.
+    sample_indices <- seq_len(ncol(counts))
+    cscores_list <- parallel::mclapply(sample_indices, function(i) {
+      .compute_sample_cscore_se(counts[, i], rnas, flanking, method)
+    }, mc.cores = ncores)
+    cscores <- do.call(cbind, cscores_list)
+    colnames(cscores) <- colnames(counts)
   } else {
-    samples_czscore <- lapply(dt[["data"]], .compute_sample_cscore, flanking, method)
+    cscores <- apply(counts, 2, .compute_sample_cscore_se, rna_factor = rnas, flanking = flanking, method = method)
   }
-  
-  ribo[["data"]] <- samples_czscore
-  ribo["cscore_window"] <- flanking
-  ribo["cscore_method"] <- method
-  ribo["has_cscore"] <- TRUE
+
+  SummarizedExperiment::assay(ribo, "cscore") <- cscores
+  ribo@metadata$cscore_window <- flanking
+  ribo@metadata$cscore_method <- method
+  ribo@metadata$has_cscore <- TRUE
+
   return(ribo)
 }
