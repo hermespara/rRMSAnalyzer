@@ -2,19 +2,19 @@
 % Please edit documentation in R/update_ribo_count_matrix.R
 \name{.update_ribo_count_with_matrix}
 \alias{.update_ribo_count_with_matrix}
-\title{Update count values inside a RiboClass with a matrix of values}
+\title{Update count values inside a SummarizedExperiment with a matrix of values}
 \usage{
-.update_ribo_count_with_matrix(ribo, update_matrix)
+.update_ribo_count_with_matrix(ribo, matrix_new)
 }
 \arguments{
-\item{ribo}{a RiboClass object}
+\item{ribo}{a SummarizedExperiment object}
 
-\item{update_matrix}{a position x sample matrix containing the new values}
+\item{matrix_new}{a position x sample matrix containing the new values}
 }
 \value{
-a RiboClass with updated values
+a SummarizedExperiment with updated values
 }
 \description{
-Update count values inside a RiboClass with a matrix of values
+Update count values inside a SummarizedExperiment with a matrix of values
 }
 \keyword{internal}

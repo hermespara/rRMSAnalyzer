@@ -33,24 +33,23 @@ You are free to add other columns, as they will be ignored by rRMSAnalyzer.
 
 # Annotate sites with your custom dataframe
 
-First, check if your RNAs inside your RiboClass have the same name as your RNAs in your annotation dataframe.
+First, check if your RNAs inside your SummarizedExperiment have the same name as your RNAs in your annotation dataframe.
 
-If not, you can use `rename_rna` to change the names inside the RiboClass or modify your annotation dataframe.
+If not, you can use `rename_rna` to change the names inside the SummarizedExperiment or modify your annotation dataframe.
 
 When this is done. You can use annotate_site :
 ```{r,eval=F}
-# In this example, ribo is the RiboClass we want to annotate
-ribo <- annotate_site(ribo,MyAnnotationDataframe)
+# In this example, ribo is the SummarizedExperiment we want to annotate
+ribo <- annotate_site(ribo, MyAnnotationDataframe)
 
 # If columns are not in the same order as the example table,
 # each column index or name must be precised then.
 
 ribo <- annotate_site(ribo,
-                      MyAnnotationDataframe,
-                      anno_rna = 3,
-                      anno_pos = 2,
-                      anno_value = 1)
-
-
+  MyAnnotationDataframe,
+  anno_rna = 3,
+  anno_pos = 2,
+  anno_value = 1
+)
 ```
 

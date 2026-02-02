@@ -2,12 +2,12 @@
 % Please edit documentation in R/utils.R
 \name{check_sample}
 \alias{check_sample}
-\title{Check if a vector of strings correspond to valid samplenames in a given RiboClass}
+\title{Check if a vector of strings correspond to valid samplenames in a given SummarizedExperiment}
 \usage{
 check_sample(ribo, sample_names)
 }
 \arguments{
-\item{ribo}{A RiboClass.}
+\item{ribo}{A SummarizedExperiment.}
 
 \item{sample_names}{The vector of string to check against ribo's samplenames}
 }

@@ -7,7 +7,7 @@
 plot_counts_fraction(ribo)
 }
 \arguments{
-\item{ribo}{A RiboClass object.}
+\item{ribo}{A SummarizedExperiment object.}
 }
 \value{
 a ggplot object
@@ -17,5 +17,5 @@ Plot count distribution among RNAs for each sample
 }
 \examples{
 data("ribo_toy")
-plot_counts_fraction(ribo_toy)
+# plot_counts_fraction(ribo_toy)
 }

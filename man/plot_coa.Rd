@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_coa.R
 \name{plot_coa}
 \alias{plot_coa}
-\title{Correspondence analysis of a RiboClass' counts.}
+\title{Correspondence analysis of a SummarizedExperiment' counts.}
 \usage{
 plot_coa(
   ribo,
@@ -15,7 +15,7 @@ plot_coa(
 )
 }
 \arguments{
-\item{ribo}{A RiboClass object.}
+\item{ribo}{A SummarizedExperiment object.}
 
 \item{color_col}{Name of the column in the metadata used for coloring samples.}
 
@@ -36,9 +36,9 @@ generating the plot.}
 A ggplot or a dudi.coa object if object_only is set to True.
 }
 \description{
-Correspondence analysis of a RiboClass' counts.
+Correspondence analysis of a SummarizedExperiment' counts.
 }
 \examples{
-data('ribo_toy')
-plot_coa(ribo = ribo_toy, color_col = 'condition')
+data("ribo_toy")
+# plot_coa(ribo = ribo_toy, color_col = 'condition')
 }

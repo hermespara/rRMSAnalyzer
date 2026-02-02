@@ -1,23 +1,10 @@
 # (internal) Compute a c-score for a vector of counts for a single RNA
+# (internal) Compute a c-score for a vector of counts for a single RNA
 .compute_vec_cscore <- function(count, flanking = 6, method) {
-  # First, we compute the window around each position (The latter
-  # is excluded)
-  if (method == "median") {
-    flanking_values <- vapply(seq(1 + flanking, length(count)), function(x) {
-      stats::median(count[c((x - flanking):(x - 1), (x + 1):(x + flanking))])
-    }, numeric(1))
-  } else if (method == "mean") {
-    flanking_values <- vapply(seq(1 + flanking, length(count)), function(x) {
-      mean(count[c((x - flanking):(x - 1), (x + 1):(x + flanking))])
-    }, numeric(1))
-  }
-  # Because we started at the 1+flanking position, we prepend NA at
-  # the beginning to match the original vector's size.
-  flanking_values <- c(rep(NA, flanking), flanking_values)
+  # Call Rcpp function to get flanking (window) values
+  flanking_values <- compute_window_score_cpp(as.numeric(count), as.numeric(flanking), as.character(method))
 
-  if (method == "median") {
-    scorec_raw <- 1 - count / flanking_values
-  } else if (method == "mean") {
+  if (method %in% c("median", "mean")) {
     scorec_raw <- 1 - count / flanking_values
   }
   return(pmax(scorec_raw, 0))

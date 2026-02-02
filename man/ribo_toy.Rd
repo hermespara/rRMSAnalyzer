@@ -3,20 +3,21 @@
 \docType{data}
 \name{ribo_toy}
 \alias{ribo_toy}
-\title{RiboClass from a toy dataset}
+\title{SummarizedExperiment from a toy dataset}
 \format{
-a RiboClass (S3 Class) with the following element
+a SummarizedExperiment object with:
 \describe{
-  \item{data}{list of sample dataframe}
-  \item{metadata}{metadata dataframe of all samples}
-  \item{rna_names}{dataframe containing both original and modified RNAs name}
+  \item{assays}{list containing counts and cscore matrices}
+  \item{colData}{metadata dataframe of all samples}
+  \item{rowData}{dataframe containing positions, RNA names and site annotations}
+  \item{metadata}{list containing the rna_names table}
   }
 }
 \usage{
 data(ribo_toy)
 }
 \description{
-A riboclass containing 10 samples + 2 reference RNA.
+A SummarizedExperiment object containing 10 samples + 2 reference RNA.
 }
 \details{
 Samples are from 4 different biological conditions ("condition" column in metadata).

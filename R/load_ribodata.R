@@ -1,18 +1,18 @@
-#' Load csv files from GenomeCov and their associated metadata. Create a RiboClass.
-#' @inheritParams new_riboclass
+#' Load csv files from GenomeCov and their associated metadata. Create a SummarizedExperiment.
+#' @inheritParams create_se
 #' @inheritParams compute_cscore
-#' @return a RiboClass
+#' @return a SummarizedExperiment object
 #' @export
-#' 
-#' @description Import your count CSV files and the metadata to create a RiboClass.
-#' The RiboClass is used by rRMSAnalyzer package for all analyses. 
-#' 
+#'
+#' @description Import your count CSV files and the metadata to create a SummarizedExperiment object.
+#' The SummarizedExperiment object is used by rRMSAnalyzer package for all analyses.
+#'
 #' __This function serves as the entrypoint of rRMSAnalyzer.__
-#' 
+#'
 #' @md
 #' @details
-#' load_ribodata is a wrapper of \code{\link{new_riboclass}} and \code{\link{compute_cscore}}.
-#' @seealso new_riboclass  
+#' load_ribodata is a wrapper of \code{\link{create_se}} and \code{\link{compute_cscore}}.
+#' @seealso create_se
 #'
 load_ribodata <- function(count_path,
                           metadata = NULL,
@@ -24,23 +24,27 @@ load_ribodata <- function(count_path,
                           count_pos = 2,
                           metadata_key = "filename",
                           metadata_id = NULL,
-                          flanking=6,
+                          flanking = 6,
                           method = "median",
                           ncores = 1) {
-  
-  ribo <- new_riboclass(count_path,
-                           metadata,
-                           count_sep,
-                           metadata_sep,
-                           count_header,
-                           count_value,
-                           count_rnaid,
-                           count_pos,
-                           metadata_key,
-                           metadata_id)
-  
-  ribo <- compute_cscore(ribo,flanking,method,ncores)
+  ribo <- create_se(
+    count_path,
+    metadata,
+    count_sep,
+    metadata_sep,
+    count_header,
+    count_value,
+    count_rnaid,
+    count_pos,
+    metadata_key,
+    metadata_id
+  )
+
+  check_type(flanking, "numeric", "flanking", length = 1)
+  check_type(method, "character", "method", length = 1)
+  check_type(ncores, "numeric", "ncores", length = 1)
+
+  ribo <- compute_cscore(ribo, flanking, method, ncores)
   cli::cli_alert_success("Your data has been successfully loaded!")
   return(ribo)
-  
 }

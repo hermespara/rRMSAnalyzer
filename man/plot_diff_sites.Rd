@@ -14,7 +14,7 @@ plot_diff_sites(
 )
 }
 \arguments{
-\item{ribo}{A RiboClass object.}
+\item{ribo}{A SummarizedExperiment object.}
 
 \item{factor_column}{Metadata column used to group samples by.}
 
@@ -47,7 +47,7 @@ Both the p-value cutoff and c-score range cutoff can be changed with p_cutoff an
 \examples{
 data("ribo_toy")
 data("human_methylated")
-ribo_toy <- rename_rna(ribo_toy)
-ribo_toy <- annotate_site(ribo_toy,human_methylated)
-plot_diff_sites(ribo_toy,"condition", p_cutoff=0.1)
+# ribo_toy <- rename_rna(ribo_toy)
+# ribo_toy <- annotate_site(ribo_toy,human_methylated)
+# plot_diff_sites(ribo_toy,"condition", p_cutoff=0.1)
 }

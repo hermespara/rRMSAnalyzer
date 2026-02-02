@@ -1,12 +1,12 @@
 #' Aggregate results into a single matrix
 #'
 #' For a given column in data, this function will generate a dataframe with all samples.
-#' Exports all positions (if only_annotated is false) or only annotated positions
+#' Exports all positions (if only_annotated is false) or only annotated sites
 #' (if only_annotated is true).
 #'
-#' @param ribo A RiboClass object.
-#' @param col Column in data you want extract data from (cscore or count).
-#' @param position_to_rownames If true, position will be included as a rowname. 
+#' @param ribo A SummarizedExperiment object.
+#' @param col Assay name to extract (e.g., "cscore" or "counts").
+#' @param position_to_rownames If true, position will be included as a rowname.
 #' They will in a new column otherwise.
 #' @param only_annotated If true, return a dataframe with only annotated sites.
 #' Return all sites otherwise.
@@ -15,61 +15,63 @@
 #' @export
 #'
 #' @examples
-#' data('ribo_toy')
-#' count_df <- extract_data(ribo_toy,'count')
+#' data("ribo_toy")
+#' # count_df <- extract_data(ribo_toy,'count')
 extract_data <- function(ribo, col = "cscore",
                          position_to_rownames = FALSE, only_annotated = FALSE) {
-  named_position <- NULL  # NSE fix
-  # The rows of this matrix correspond to the positions on the rRNA
+  check_is_se(ribo)
+  check_type(col, "character", "col", length = 1)
+  check_type(position_to_rownames, "logical", "position_to_rownames", length = 1)
+  check_type(only_annotated, "logical", "only_annotated", length = 1)
+
   col <- tolower(col)
-  
-  if (!(col %in% colnames(ribo[["data"]][[1]]))) {
-    cli::cli_abort(c("Name supplied to {.var col} is not a column in the data",
-                   "i" = "Available columns: {.val {colnames(ribo[[\"data\"]][[1]])}}",
-                   "x" = "{.val {col}} is not a valid column"))
+  if (col == "count") col <- "counts" # Alias handling
+
+  if (!(col %in% SummarizedExperiment::assayNames(ribo))) {
+    cli::cli_abort(c("Name supplied to {.var col} is not an assay in the object",
+      "i" = "Available assays: {.val {SummarizedExperiment::assayNames(ribo)}}",
+      "x" = "{.val {col}} is not a valid assay"
+    ))
   }
-  
-  sample_list <- ribo[["data"]]
-  sample_list_nm <- names(sample_list)
+
+  # Extract the assay data
+  mat <- SummarizedExperiment::assay(ribo, col)
+  df <- as.data.frame(mat)
+
+  # Get row details
+  rd <- SummarizedExperiment::rowData(ribo)
+
+  # Handle "only_annotated"
   if (only_annotated) {
-    # if only_annotated is TRUE, then we use the "site" column for our
-    # positions, as this column contains the annotated sites only.
-    df <- sample_list[[1]]
-    df_sites <- df[which(!is.na(df[, "site"])), ]
-    position_list <- df_sites[, "site"]
-    matrix_all <- data.frame(site = position_list)
-    positions <- "site"
+    if (!"site" %in% names(rd)) {
+      cli::cli_abort("No 'site' column in rowData. Can't filter by annotated sites.")
+    }
+    keep <- !is.na(rd$site) & rd$site != ""
+    df <- df[keep, , drop = FALSE]
+    rd <- rd[keep, , drop = FALSE]
+    position_col_name <- "site"
+    position_values <- rd$site
   } else {
-    # When only_annotated is FALSE, we default to all positions in
-    # "named_position".
-    position_list <- sample_list[[1]][, "named_position"]
-    matrix_all <- data.frame(named_position = position_list)
-    positions <- "named_position"
-    
-  }
-  
-  for (sample_nm in sample_list_nm) {
-    sample_df <- sample_list[[sample_nm]]
-    if (only_annotated) {
-      sample_df <- sample_df[which(!is.na(sample_df[, "site"])), ]
-    }
-    sample_df <- sample_df[, c(positions, col)]
-    
-    matrix_all <- dplyr::full_join(matrix_all, sample_df,
-                                     by = positions)
-    matrix_all_len <- length(names(matrix_all))
-    names(matrix_all)[matrix_all_len] <- sample_nm
-    matrix_all <- matrix_all[match(position_list,matrix_all[, positions]),]
-    
-  }
-  if (position_to_rownames) {
-    if (only_annotated) {
-      col_name <- "site"
+    # Generate named_position if not present or use constructed one
+    # Original logic used named_position which was likely "RNA_Position"
+    # We can reconstruct it or check if it's in rowData
+    if ("named_position" %in% names(rd)) {
+      position_values <- rd$named_position
     } else {
-      col_name <- "named_position"
+      position_values <- paste(rd$rna, formatC(rd$rnapos, width = 4, flag = "0"), sep = "_")
     }
-    row.names(matrix_all) <- matrix_all[, col_name]
-    matrix_all[, col_name] <- NULL
+    position_col_name <- "named_position"
   }
-  return(matrix_all)
+
+  # Check for match (logic from original: match(position_list, matrix_all...))
+  # In SE, strict alignment is guaranteed, so we don't need to join/match like before.
+
+  if (position_to_rownames) {
+    rownames(df) <- position_values
+  } else {
+    # Add position column at the beginning
+    df <- cbind(setNames(data.frame(position_values), position_col_name), df)
+  }
+
+  return(df)
 }

@@ -3,8 +3,7 @@ title: "rRMSAnalyzer: package to analyze RiboMethSeq data"
 author: "Théo COMBE, Hermes PARAQINDES, Janisse KIELBASSA, Emilie THOMAS, Anthony FERRARI and Virginie MARCEL"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 abstract: > 
-  RiboMethSeq is an innovative RNAseq-based approach, which was developed in 2015 to analyze 2’O-ribose methylation (2’Ome) at all sites of ribosomal RNAs (rRNA) at once, in yeast [@birkedal2014]. This approach was then transferred to human using the Illumina technology [@Marchand2016; @Erales2017; @Marcel2021]. Briefly, the presence of 2'Ome protects the phosphodiester bond located at the 3' of the 2'Ome nucleotide from alkaline hydrolysis. Thus, the presence of 2'Ome at the given nucleotide n induces under-representation of RNA fragments starting at the nucleotide n+1  and an over-representation of RNA fragments ending at the nucleotide n-1, allowing the extrapolation of 2'Ome levels at the corresponding nucleotide position n (or C-score) varying from 0 to 1 [@birkedal2014]. <br><br> The rRMSAnalyzer package can be used for any kind of RNA and with all organisms. This package provides a set of user-friendly functions to compute C-scores from RiboMethSeq read end counts as input, adjust batch effect with ComBat-Seq, visualize the data and provide a table with the annotated human rRNA sites and their C-scores. Processing of the raw data to obtain read end counts from sequencing data was previously described [@Marchand2016]. 
-output:
+  RiboMethSeq is an innovative RNAseq-based approach, which was developed in 2015 to analyze 2’O-ribose methylation (2’Ome) at all sites of ribosomal RNAs (rRNA) at once, in yeast [@birkedal2014]. This approach was then transferred to human using the Illumina technology [@Marchand2016; @Erales2017; @Marcel2021]. Briefly, the presence of 2'Ome protects the phosphodiester bond located at the 3' of the 2'Ome nucleotide from alkaline hydrolysis. Thus, the presence of 2'Ome at the given nucleotide n induces under-representation of RNA fragments starting at the nucleotide n+1  and an over-representation of RNA fragments ending at the nucleotide n-1, allowing the extrapolation of 2'Ome levels at the corresponding nucleotide position n (or C-score) varying from 0 to 1 [@birkedal2014]. <br><br> The rRMSAnalyzer package can be used for any kind of RNA and with all organisms. This package provides a set of user-friendly functions to compute C-scores from RiboMethSeq read end counts as input, adjust batch effect with ComBat-Seq, visualize the data and provide a table with the annotated human rRNA sites and their C-scores. Processing of the raw data to obtain read end counts from sequencing data was previously described [@Marchand2016]. All functions center around the \code{SummarizedExperiment} object, a standard Bioconductor structure for omics data.output:
    rmarkdown::html_vignette:
       toc: true
       fig_width: 5
@@ -25,6 +24,8 @@ knitr::opts_chunk$set(
 
 ```{r setup, include=FALSE}
 library(rRMSAnalyzer)
+library(SummarizedExperiment)
+library(S4Vectors)
 ```
 
 The rRMSAnalyzer package can be used for any type of RNA and on all organism. This package provides a set of user-friendly functions to calculate C-scores from RiboMethSeq read end counts as input, perform quality control of the dataset, adjust for potential batch effects, and provide tools to visualize and analyze the data. In addition, a list of potentially methylated human rRNA sites is provided for analyses. 
@@ -58,10 +59,11 @@ devtools::install_github("RibosomeCRCL/rRMSAnalyzer")
 library(rRMSAnalyzer)
 
 ribo <- load_ribodata(
-              count_path = "/path/to/your/csvfiles/directory/",
-              metadata = "path/to/metadata.csv",
-              metadata_key = "filename",
-              metadata_id = "samplename")
+  count_path = "/path/to/your/csvfiles/directory/",
+  metadata = "path/to/metadata.csv",
+  metadata_key = "filename",
+  metadata_id = "samplename"
+)
 
 # Compute the c-score using different parameters,
 # including calculation of the local coverage using the mean instead of the median
@@ -69,25 +71,25 @@ ribo <- compute_cscore(ribo, method = "mean")
 
 # If necessary, adjust any technical biases using ComBat-Seq.
 # Here, as an example, we use the "library" column in metadata.
-ribo <- adjust_bias(ribo,"library")
+ribo <- adjust_bias(ribo, "library")
 
 # Plot a Principal Component Analysis (PCA) whose colors depend on the "condition" column in metadata
-plot_pca(ribo,"condition")
+plot_pca(ribo, "condition")
 ```
 
-# RiboClass
+# SummarizedExperiment
 
-RiboClass is the main class of the package that enables the storage of both the data matrices (counts and c-scores) and the associated metadata. It is automatically created when calling *load_ribodata* (see [Loading data]).
+The \code{SummarizedExperiment} is the main class of the package that enables the storage of both the data matrices (counts and c-scores) and the associated metadata. It is automatically created when calling *load_ribodata* (see [Loading data]).
 
-It is a list containing three main elements, individually described below:
+It consists of several components, individually described below:
 
-1.  **Data**: a list of dataframe, containing for each sample the 5' and/or 3' read-end counts provided by the user, and the calculated C-score.
+1.  **Assays**: matrices containing for each sample the counts provided by the user, and the calculated C-score.
 
-2.  **Metadata**: a dataframe, containing all the information related to the samples that can be provided by the user.
+2.  **ColData**: a dataframe containing all the information related to the samples (metadata).
 
-3.  **RNA_names**: a dataframe, reporting the names of the RNA used in Data.
+3.  **RowData**: a dataframe reporting the names of the RNA, positions and annotations for each site.
 
-Some major function parameters (such as the normalization method used for c-score computation) are also kept in the RiboClass object as a reminder.
+4. **Metadata**: a list containing additional information, such as the RNA names mapping table and computation parameters.
 
 # Loading data
 
@@ -155,32 +157,33 @@ Here is an example of auto-generated metadata:
 
 ### How to load the data
 
-To load both data and metadata, and store them in a RiboClass, the function `load_ribodata` is used.
+To load both data and metadata, and store them in a SummarizedExperiment, the function `load_ribodata` is used.
 
 The following example displays a call to load_ribodata, with all parameters shown :
 
 ```{r}
-path <- system.file("extdata", package="rRMSAnalyzer")
+path <- system.file("extdata", package = "rRMSAnalyzer")
 
 ribo <- load_ribodata(
-                      #data & metadata files path
-                      count_path = file.path(path,"miniglioma/"),
-                      metadata = file.path(path,"metadata.csv"),
-                      # data & metadata files separator
-                      count_sep = "\t",
-                      metadata_sep = ",",
-                      # count data parameters :
-                      count_header = FALSE,
-                      count_value = 3,
-                      count_rnaid = 1,
-                      count_pos = 2,
-                      # Metadata parameters :
-                      metadata_key = "filename",
-                      metadata_id = "samplename",
-                      # c-score parameters :
-                      flanking = 6,
-                      method = "median",
-                      ncores = 1)
+  # data & metadata files path
+  count_path = file.path(path, "miniglioma/"),
+  metadata = file.path(path, "metadata.csv"),
+  # data & metadata files separator
+  count_sep = "\t",
+  metadata_sep = ",",
+  # count data parameters :
+  count_header = FALSE,
+  count_value = 3,
+  count_rnaid = 1,
+  count_pos = 2,
+  # Metadata parameters :
+  metadata_key = "filename",
+  metadata_id = "samplename",
+  # c-score parameters :
+  flanking = 6,
+  method = "median",
+  ncores = 1
+)
 ```
 
 
@@ -188,7 +191,7 @@ ribo <- load_ribodata(
 
 ### Provided
 
-RNA names are automatically obtained from the data and stored in a generated dataframe inside the RiboClass. It contains two columns :
+RNA names are automatically obtained from the data and stored in a generated dataframe inside the SummarizedExperiment object's metadata. It contains two columns :
 
 1.  **original_name**: original name of each RNA (e.g NR_023363.1).
 
@@ -226,28 +229,30 @@ By default, the local coverage is estimated by calculating the **median** of the
 When using the load_ribodata function, a C-score is automatically calculated for all genomic positions of the RNA. The C-score is computed using either the default parameters of the load_ribodata function or user-defined parameters as follows:
 
 ```{r, eval=FALSE}
-load_ribodata(count.path = "/path/to/csv/",
-              metadata = "/path/to/metadata.csv",
-              # everything below is linked to c-score computation
-              flanking = 6, # flanking region size
-              method = "median", # use mean or median on flanking region's values
-              ncores = 8 # number of CPU cores to use for computation
-              )
+load_ribodata(
+  count.path = "/path/to/csv/",
+  metadata = "/path/to/metadata.csv",
+  # everything below is linked to c-score computation
+  flanking = 6, # flanking region size
+  method = "median", # use mean or median on flanking region's values
+  ncores = 8 # number of CPU cores to use for computation
+)
 ```
 
 ## C-score computation during the analysis
 
-During the analysis, the C-score calculating parameters (method and size of the flanking region) can be modified using the *compute_cscore* function, which will automatically update the C-score in the RiboClass.
+During the analysis, the C-score calculating parameters (method and size of the flanking region) can be modified using the *compute_cscore* function, which will automatically update the C-score in the SummarizedExperiment.
 
 In the following example, both the flanking region's size of the local coverage and the computation method have been modified:
 
 ```{r,eval=FALSE}
 ribo <- compute_cscore(ribo,
-                       flanking = 4,
-                       method = "mean")
+  flanking = 4,
+  method = "mean"
+)
 ```
 
-**Important: this function will override the previous c-score of the RiboClass.**
+**Important: this function will override the previous c-score of the SummarizedExperiment.**
 
 # Quality control
 
@@ -269,7 +274,7 @@ report_qc(ribo = ribo_toy, library_col = "run")
 
 The QC report includes the following visualizations:
 
-- End read counts distribution by sample (boxplot_count)
+- End read counts distribution by sample (plot_boxplot_count)
 - Relative log coverage (i.e., end read count) by sample (plot_rle)
 - RNA fraction of end read counts per sample (plot_count_fraction)
 - Heatmap summarizing the correlation matrix of the end read counts (plot_heatmap_corr)
@@ -283,24 +288,26 @@ Technical bias (i.e., batch effect) can be identified by plotting C-scores at al
 Here is an example:
 
 ```{r}
-plot_pca(ribo = ribo,
-         color_col = "run")
+plot_pca(
+  ribo = ribo,
+  color_col = "run"
+)
 ```
 
 In this example, the technical replicates RNA1 and RNA2 included in library 1 and 2 respectively, are distant from each other on the PC1 axis. Moreover, the samples should not be grouped by library or batch. The following section will resolve this batch effect.
 
 ## Batch effect adjustment
 
-Batch effect of RiboMethSeq data can be adjusted using the ComBat-seq method (Paraqindes et al, in revision; Zhang, et al, 2020). The rRMSAnalyzer package includes a wrapper (adjust_bias) to perform ComBat-seq adjustment which provides a new RiboClass with adjusted read end count values and C-scores automatically recalculated with the same setup parameters.
+Batch effect of RiboMethSeq data can be adjusted using the ComBat-seq method (Paraqindes et al, in revision; Zhang, et al, 2020). The rRMSAnalyzer package includes a wrapper (adjust_bias) to perform ComBat-seq adjustment which provides a new SummarizedExperiment with adjusted read end count values and C-scores automatically recalculated with the same setup parameters.
 
 ```{r}
 ribo_adjusted <- adjust_bias(ribo, batch = "run")
 ```
 
-Batch effect adjustment can be verified using the plot_pca function on the new RiboClass:
+Batch effect adjustment can be verified using the plot_pca function on the new SummarizedExperiment:
 
 ```{r}
-plot_pca(ribo_adjusted,"run")
+plot_pca(ribo_adjusted, "run")
 ```
 
 After batch effect adjustment using ComBat-seq method, the two technical replicates RNA1 and RNA2 show reduced dispersion, and the samples are separated on the PCA axes independently of the library they belong to.
@@ -316,7 +323,7 @@ Here is an example:
 
 ```{r}
 data("ribo_toy")
-plot_counts_env(ribo_adjusted,"NR_046235.3_5.8S",14)
+plot_counts_env(ribo_adjusted, "NR_046235.3_5.8S", 14)
 ```
 
 2. **sample of interest**: by displaying the end read count coverage of the sample of interest only using the profile at the +6/-6 genomic position relative to the genomic position of interest (vertical green line). The median of the read end count is displayed as a horizontal dotted red line.
@@ -324,31 +331,30 @@ plot_counts_env(ribo_adjusted,"NR_046235.3_5.8S",14)
 Here is an example:
 
 ```{r}
-plot_counts_env(ribo_adjusted,"NR_046235.3_5.8S",14,c("S1","S2"))
+plot_counts_env(ribo_adjusted, "NR_046235.3_5.8S", 14, c("S1", "S2"))
 ```
 
 # Sample manipulation
 
 ## Keep or remove samples
 
-A sample subset can be easily analyzed by specifying which samples to keep or which to remove. The user can then create a new RiboClass object containing the data and metadata of the samples of interest. In both cases, only the metadata of the remaining samples are kept in the RiboClass object, so no manual updating is required.
+A sample subset can be easily analyzed by specifying which samples to keep or which to remove. The user can then create a new SummarizedExperiment object containing the data and metadata of the samples of interest. In both cases, only the metadata of the remaining samples are kept in the SummarizedExperiment object, so no manual updating is required.
 
-Here is an example of how to create a new RiboClass by retaining two samples of interest (“S1” and “S2”):
+Here is an example of how to create a new SummarizedExperiment by retaining two samples of interest (“S1” and “S2”):
 
 ```{r}
-ribo_2samples <- keep_ribo_samples(ribo_adjusted,c("S1","S2"))
+ribo_2samples <- keep_samples(ribo_adjusted, c("S1", "S2"))
 print(ribo_2samples)
-
 ```
 
-Here is an example to generate a new RiboClass by removing two samples ("S1" and "S2"):
+Here is an example to generate a new SummarizedExperiment by removing two samples ("S1" and "S2"):
 
 ```{r}
-ribo_removed_samples <- remove_ribo_samples(ribo,c("S1","S1"))
+ribo_removed_samples <- remove_samples(ribo, c("S1", "S1"))
 print(ribo_removed_samples)
 ```
 
-In both cases, only the remaining samples' metadata are kept in the RiboClass object. There is no need to update it manually.
+In both cases, only the remaining samples' metadata are kept in the SummarizedExperiment object. There is no need to update it manually.
 
 # RNA manipulation and annotation
 
@@ -356,7 +362,7 @@ In both cases, only the remaining samples' metadata are kept in the RiboClass ob
 
 ### Remove RNA
 
-A subset of RNA can be easily analyzed by specifying the RNA to be removed. The user can thus create a new RiboClass object containing the data of the RNAs of interest, without affecting the metadata of the samples.
+A subset of RNA can be easily analyzed by specifying the RNA to be removed. The user can thus create a new SummarizedExperiment object containing the data of the RNAs of interest, without affecting the metadata of the samples.
 
 Here is an example where the RNA 5S is removed:
 
@@ -369,12 +375,12 @@ print(ribo_adjusted)
 
 The annotation of rRNA 2’Ome sites using the lists provided by this package requires the use of specific RNA names.
 
-Here is an example to check if the RNA names provided by the user in the RiboClass match the ones used by this package :
+Here is an example to check if the RNA names provided by the user in the SummarizedExperiment match the ones used by this package :
 
 ```{r}
 data("human_methylated")
-cat("human_methylated's rna names: ", unique(human_methylated$rRNA),"\n")
-cat("ribo's rna names: ", as.character(ribo_adjusted$rna_names$current_name))
+cat("human_methylated's rna names: ", unique(human_methylated$rRNA), "\n")
+cat("ribo's rna names: ", as.character(metadata(ribo_adjusted)$rna_names$current_name))
 ```
 
 In this example, the names are different and need to be updated before annotation.
@@ -383,9 +389,9 @@ The rename_rna function automatically updates the rRNA names given by the rRNA s
 
 ```{r}
 ribo_adjusted <- rename_rna(ribo_adjusted,
-                            new_names = c("5.8S", "18S", "28S")) 
-                            # from the shortest RNA in our RiboClass to the longest.
-
+  new_names = c("5.8S", "18S", "28S")
+)
+# from the shortest RNA in our SummarizedExperiment to the longest.
 ```
 
 ## Annotation of RNA 2'Ome sites
@@ -402,11 +408,11 @@ By default, rRMSAnalyzer package includes two dataframes containing the position
 
 ### Customize 2'Ome sites annotations {#customize-2ome-sites-annotations}
 
-Instead of using the list of human rRNA 2’Ome sites provided by the rRMSAnalyzer package, the user can provide their own list of annotated sites which will be attached to the RiboClass object using the annotate_site function (see 10.3 section : annotation of RNA sites).
+Instead of using the list of human rRNA 2’Ome sites provided by the rRMSAnalyzer package, the user can provide their own list of annotated sites which will be attached to the SummarizedExperiment object using the annotate_site function (see 10.3 section : annotation of RNA sites).
 
 This annotate_site function expects an “annot” parameter which must be a dataframe object that contains the following three mandatory columns :
 
--   **RNA name**: the name of the RNA, matching the RNA name of the RiboClass.
+-   RNA name: the name of the RNA, matching the RNA name of the SummarizedExperiment.
 
 -   **Position on RNA**: the number of the position on the RNA.
 
@@ -422,19 +428,20 @@ You can see an example below :
 
 ### Annotate RNA sites {#annotate-sites}
 
-The 2’Ome sites of interest must be attached to the RiboClass object for further analysis using the annotate function with either the provided annotations or custom annotations.
+The 2’Ome sites of interest must be attached to the SummarizedExperiment object for further analysis using the annotate function with either the provided annotations or custom annotations.
 
 Here is an example using the included human methylated annotations:
 
 ```{r}
 ribo_adjusted <- annotate_site(ribo_adjusted,
-                               annot = human_methylated,
-                               anno_rna = "rRNA",
-                               anno_pos = "Position",
-                               anno_value = "Nomenclature")
+  annot = human_methylated,
+  anno_rna = "rRNA",
+  anno_pos = "Position",
+  anno_value = "Nomenclature"
+)
 ```
 
-Note : rRMSAnalyzer will display a warning message when there is a mismatch between the annot and RiboClass RNA names. 
+Note : rRMSAnalyzer will display a warning message when there is a mismatch between the annot and SummarizedExperiment RNA names. 
 
 This vignette also provides some explanations on how to create your own sites annotation dataset with [Customize 2'Ome sites annotations](#customize-2ome-sites-annotations).
 
@@ -445,7 +452,7 @@ Here is a list of the implemented plots with the function name:
 
 - principal component analysis using the C-scores of the annotated RNA 2’Ome sites (plot_pca)
 - heatmap using the C-scores of the annotated RNA 2’Ome sites (plot_heatmap)
-- boxplot using the C-scores of the annotated RNA 2’Ome sites in ascending order of variability (boxplot_count)
+- boxplot using the C-scores of the annotated RNA 2’Ome sites in ascending order of variability (plot_boxplot_count)
   
 As an example, the  plot_pca function  is presented below.  
 
@@ -453,26 +460,29 @@ Here is an example comparing samples reflecting different biological conditions 
 
 ```{r}
 plot_pca(ribo_adjusted,
-         color_col = "condition",
-         only_annotated = TRUE)
+  color_col = "condition",
+  only_annotated = TRUE
+)
 ```
 
 **Note 1** : by default, PC1 and PC2 axes are plotted. However, the user can choose the PCA axes of interest using the "axes" parameter.
 
 ```{r}
 plot_pca(ribo_adjusted,
-         color_col = "condition",
-         axes = c(2,3), #PC2 and PC3 will be plotted
-         only_annotated = TRUE)
+  color_col = "condition",
+  axes = c(2, 3), # PC2 and PC3 will be plotted
+  only_annotated = TRUE
+)
 ```
 
 **Note 2**  the function returns the complete dudi.pca object instead of the plot by setting *object_only* to TRUE:
 
 ```{r}
 pca <- plot_pca(ribo_adjusted,
-         color_col = "condition",
-         only_annotated = TRUE,
-         object_only = TRUE)
+  color_col = "condition",
+  only_annotated = TRUE,
+  object_only = TRUE
+)
 ```
 
 # Analytic functions for site-by-site comparison of 2'Ome levels
@@ -486,11 +496,11 @@ The *plot_diff_sites* function displays only the RNA sites that meet these two c
 
 Here is an example:
 ```{r}
-plot_diff_sites(ribo_adjusted,factor_column = "condition")
+plot_diff_sites(ribo_adjusted, factor_column = "condition")
 ```
 ```{r}
-#Because no RNA site was found to fulfill the default cut-offs, the p-value cut-off is changed for the following example
-plot_diff_sites(ribo_adjusted,factor_column = "condition",p_cutoff = 0.1)
+# Because no RNA site was found to fulfill the default cut-offs, the p-value cut-off is changed for the following example
+plot_diff_sites(ribo_adjusted, factor_column = "condition", p_cutoff = 0.1)
 ```
 
 # Exporting data
@@ -505,19 +515,21 @@ By default, C-scores for all the genomic RNA positions are exported.
 
 ```{r}
 ribo_df <- extract_data(ribo_adjusted,
-                        col = "cscore")
+  col = "cscore"
+)
 ```
 
 The user can export data related to the subset of annotated RNA 2'Ome sites by setting the *only_annotated* parameter to TRUE.
 
 ```{r}
 ribo_df <- extract_data(ribo_adjusted,
-                        col = "cscore",
-                        only_annotated = TRUE)
+  col = "cscore",
+  only_annotated = TRUE
+)
 ```
 
 ```{r, echo=FALSE}
-knitr::kable(ribo_df[1:10,1:4],caption = "Excerpt from the output dataframe, where S1, S2 and S3 are samples:")
+knitr::kable(ribo_df[1:10, 1:4], caption = "Excerpt from the output dataframe, where S1, S2 and S3 are samples:")
 ```
 
 ## Export as a ggplot-ready dataframe
@@ -529,12 +541,11 @@ By default, C-scores for all the genomic RNA positions are exported. The user ca
 Here is an example of ggplot-ready dataframe containing the C-scores of all the genomic RNA positions as well as the condition related to the particular sample of interest:
 
 ```{r}
-ggplot_table <- format_to_plot(ribo_adjusted,"condition")
-
+ggplot_table <- format_to_plot(ribo_adjusted, "condition")
 ```
 
 ```{r,echo=FALSE}
-knitr::kable(ggplot_table[501:510,], caption = "Excerpt from the output ggplot-ready dataframe")
+knitr::kable(ggplot_table[501:510, ], caption = "Excerpt from the output ggplot-ready dataframe")
 ```
 
 ## Export as a dataframe by condition
@@ -547,13 +558,14 @@ Here is an example of dataframe showing the summarized C-scores per modality of 
 
 ```{r}
 mean_tb <- mean_samples_by_conditon(ribo_adjusted,
-                                    value = "cscore",
-                                    metadata_condition = "condition",
-                                    only_annotated = TRUE)
+  value = "cscore",
+  metadata_condition = "condition",
+  only_annotated = TRUE
+)
 ```
 
 ```{r,echo=FALSE}
-knitr::kable(mean_tb[1:10,],caption = "Excerpt from the output dataframe by condition")
+knitr::kable(mean_tb[1:10, ], caption = "Excerpt from the output dataframe by condition")
 ```
 
 # Sessioninfo

@@ -2,12 +2,12 @@
 % Please edit documentation in R/plot_rle.R
 \name{plot_rle}
 \alias{plot_rle}
-\title{Relative Log Expression plot of a RiboClass object’s counts.}
+\title{Relative Log Expression plot of a SummarizedExperiment object’s counts.}
 \usage{
 plot_rle(ribo, show_outlier = TRUE)
 }
 \arguments{
-\item{ribo}{a RiboClass object.}
+\item{ribo}{a SummarizedExperiment object.}
 
 \item{show_outlier}{Show boxplot outlier values.}
 }
@@ -15,7 +15,7 @@ plot_rle(ribo, show_outlier = TRUE)
 A ggplot object. Samples with a median lower than median(RLE counts)-2*MAD (Median Absolute Deviation) are colored in red.
 }
 \description{
-Relative Log Expression plot of a RiboClass object’s counts.
+Relative Log Expression plot of a SummarizedExperiment object’s counts.
 }
 \examples{
 data("ribo_toy")

@@ -12,10 +12,10 @@ generate_metadata_df(counts_folder_path, create_samplename_col = TRUE)
 \item{create_samplename_col}{Generate a sample name col with filename by default}
 }
 \description{
-Generate an "empty" dataframe with the required filename and samplename columns to include in a riboclass.
+Generate an "empty" dataframe with the required filename and samplename columns to include in a SummarizedExperiment.
 
 Names in the samplename column can be modified, as long as each sample has an unique name.
 
-\strong{The filename column cannot be modified, unless the filenames on disk have changed.} Otherwise, it would prevent \code{\link{new_riboclass}} from linking data and metadata...
+\strong{The filename column cannot be modified, unless the filenames on disk have changed.} Otherwise, it would prevent \code{\link{create_se}} from linking data and metadata...
 }
 \keyword{internal}

@@ -1,35 +1,52 @@
-#' Rename RNAs in a RiboClass object
-#' 
-#' @param ribo A RiboClass object.
+#' Rename RNAs in a SummarizedExperiment object
+#'
+#' @param ribo A SummarizedExperiment object.
 #' @param new_names Vector of new RNA names (by RNA size order).
-#' @return a RiboClass with updated RNA names in both data and rna_names sections.
+#' @return a SummarizedExperiment with updated RNA names.
 #' @export
 #'
 #' @examples
 #' data("ribo_toy")
-#' ribo_toy <- rename_rna(ribo_toy ,c("5S","5.8S","18S","28S"))
+#' # ribo_toy <- rename_rna(ribo_toy ,c("5S","5.8S","18S","28S"))
+#'
+rename_rna <- function(ribo, new_names = c("5S", "5.8S", "18S", "28S")) {
+  check_is_se(ribo)
+  check_type(new_names, "character", "new_names")
 
-rename_rna <- function(ribo,new_names=c("5S","5.8S","18S","28S")) {
-  
-  sample_list <- ribo[["data"]]
-  rna_names <- ribo[["rna_names"]]
-  
-  if(nrow(rna_names) != length(new_names)) {
-    stop("Different numbers of RNA names in your RiboClass (",nrow(rna_names),") and the list given (",length(new_names),").")
+  rna_names_df <- ribo@metadata$rna_names
+
+  if (nrow(rna_names_df) != length(new_names)) {
+    cli::cli_abort("Different numbers of RNA names in your object ({nrow(rna_names_df)}) and the list given ({length(new_names)}).")
   }
-  rna_names[3] <- new_names
-  
-  #change the RNA names inside each sample
-  sample_list_renamed <- lapply(sample_list, function(x) {
-    x[,1] <- rna_names[,3][match(x[,1], rna_names[,2])]
-    return(x)
-  })
-  rna_names[2] <- rna_names[3]
-  rna_names <- rna_names[,1:2]
-  # Update nomenclature according to the new RNAs
-  sample_list_renamed <- .generate_riboclass_named_position(sample_list_renamed,1,2)
-  
-  ribo[["data"]] <- sample_list_renamed
-  ribo[["rna_names"]] <- rna_names
+
+  # Create mapping
+  # The rna_names_df has rows corresponding to distinct RNAs.
+  # We assume the order of new_names corresponds to the order of rows in rna_names_df?
+  # The doc says "by RNA size order".
+  # Original code: rna_names[3] <- new_names. It assumed rna_names rows were ordered.
+
+  # Update rowData
+  rd <- SummarizedExperiment::rowData(ribo)
+
+  # Map current names to new names
+  current_names <- as.character(rd$rna)
+
+  # Map:
+  # rna_names_df$current_name[i] -> new_names[i]
+
+  # We can use factor levels replacement if we align them
+  mapping <- setNames(new_names, rna_names_df$current_name)
+
+  new_rna_col <- mapping[current_names]
+
+  # Update rd$rna
+  rd$rna <- factor(new_rna_col, levels = unique(new_names)) # Maintain order?
+
+  SummarizedExperiment::rowData(ribo) <- rd
+
+  # Update metadata
+  rna_names_df$current_name <- new_names
+  ribo@metadata$rna_names <- rna_names_df
+
   return(ribo)
 }

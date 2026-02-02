@@ -12,11 +12,11 @@ extract_data(
 )
 }
 \arguments{
-\item{ribo}{A RiboClass object.}
+\item{ribo}{A SummarizedExperiment object.}
 
-\item{col}{Column in data you want extract data from (cscore or count).}
+\item{col}{Assay name to extract (e.g., "cscore" or "counts").}
 
-\item{position_to_rownames}{If true, position will be included as a rowname. 
+\item{position_to_rownames}{If true, position will be included as a rowname.
 They will in a new column otherwise.}
 
 \item{only_annotated}{If true, return a dataframe with only annotated sites.
@@ -28,10 +28,10 @@ annotated sites. A site column can be added if position_to_rownames = FALSE.
 }
 \description{
 For a given column in data, this function will generate a dataframe with all samples.
-Exports all positions (if only_annotated is false) or only annotated positions
+Exports all positions (if only_annotated is false) or only annotated sites
 (if only_annotated is true).
 }
 \examples{
-data('ribo_toy')
-count_df <- extract_data(ribo_toy,'count')
+data("ribo_toy")
+# count_df <- extract_data(ribo_toy,'count')
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/report.R
 \name{report_qc}
 \alias{report_qc}
-\title{Generate html report about possible batch effect for a given RiboClass.}
+\title{Generate html report about possible batch effect for a given SummarizedExperiment.}
 \usage{
 report_qc(
   ribo,
@@ -12,7 +12,7 @@ report_qc(
 )
 }
 \arguments{
-\item{ribo}{A RiboClass object.}
+\item{ribo}{A SummarizedExperiment object.}
 
 \item{library_col}{Library/run column in the metadata.}
 
@@ -21,5 +21,5 @@ report_qc(
 \item{output_dir}{Path to output dir. Working directory is selected by default.}
 }
 \description{
-Generate html report about possible batch effect for a given RiboClass.
+Generate html report about possible batch effect for a given SummarizedExperiment.
 }

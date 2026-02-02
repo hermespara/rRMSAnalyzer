@@ -2,7 +2,7 @@
 % Please edit documentation in R/load_ribodata.R
 \name{load_ribodata}
 \alias{load_ribodata}
-\title{Load csv files from GenomeCov and their associated metadata. Create a RiboClass.}
+\title{Load csv files from GenomeCov and their associated metadata. Create a SummarizedExperiment.}
 \usage{
 load_ribodata(
   count_path,
@@ -48,17 +48,17 @@ load_ribodata(
 \item{ncores}{Number of cores to use in case of multithreading.}
 }
 \value{
-a RiboClass
+a SummarizedExperiment object
 }
 \description{
-Import your count CSV files and the metadata to create a RiboClass.
-The RiboClass is used by rRMSAnalyzer package for all analyses.
+Import your count CSV files and the metadata to create a SummarizedExperiment object.
+The SummarizedExperiment object is used by rRMSAnalyzer package for all analyses.
 
 \strong{This function serves as the entrypoint of rRMSAnalyzer.}
 }
 \details{
-load_ribodata is a wrapper of \code{\link{new_riboclass}} and \code{\link{compute_cscore}}.
+load_ribodata is a wrapper of \code{\link{create_se}} and \code{\link{compute_cscore}}.
 }
 \seealso{
-new_riboclass
+create_se
 }

@@ -2,22 +2,22 @@
 % Please edit documentation in R/remove_rna.R
 \name{remove_rna}
 \alias{remove_rna}
-\title{Remove one or more RNA among your RiboClass' samples}
+\title{Remove one or more RNA among your SummarizedExperiment' samples}
 \usage{
 remove_rna(ribo, rna_to_remove)
 }
 \arguments{
-\item{ribo}{A RiboClass object.}
+\item{ribo}{A SummarizedExperiment object.}
 
 \item{rna_to_remove}{One RNA name or a vector of RNA names.}
 }
 \value{
-A RiboClass with the RNA(s) removed in data and rna_names sections.
+A SummarizedExperiment with the RNA(s) removed.
 }
 \description{
-Remove one or more RNA among your RiboClass' samples
+Remove one or more RNA among your SummarizedExperiment' samples
 }
 \examples{
 data("ribo_toy")
-ribo_toy <- remove_rna(ribo_toy, "NR_023363.1_5S")
+# ribo_toy <- remove_rna(ribo_toy, "NR_023363.1_5S")
 }

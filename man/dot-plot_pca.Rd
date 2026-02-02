@@ -16,11 +16,11 @@
 \arguments{
 \item{dudi.pca}{a dudi.pca object generated with Ade4}
 
-\item{metadata}{metadata table from RiboClass}
+\item{metadata}{metadata table from SummarizedExperiment}
 
 \item{color_col}{Name of the column in the metadata used for coloring samples.}
 
-\item{axes}{Two-element vector indicating which pair of principal components 
+\item{axes}{Two-element vector indicating which pair of principal components
 to show.}
 
 \item{title}{Title to display on the plot. 'default' for default title.}

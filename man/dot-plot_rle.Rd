@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_rle.R
 \name{.plot_rle}
 \alias{.plot_rle}
-\title{(internal) Compute and plot Relative Log Expression for a chosen data in as RiboClass}
+\title{(internal) Compute and plot Relative Log Expression for a chosen data in as SummarizedExperiment}
 \usage{
 .plot_rle(mat = NULL, show_outlier, col_to_plot)
 }
@@ -17,6 +17,6 @@
 a ggplot object
 }
 \description{
-(internal) Compute and plot Relative Log Expression for a chosen data in as RiboClass
+(internal) Compute and plot Relative Log Expression for a chosen data in as SummarizedExperiment
 }
 \keyword{internal}

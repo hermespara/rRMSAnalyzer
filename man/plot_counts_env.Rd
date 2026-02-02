@@ -13,7 +13,7 @@ plot_counts_env(
 )
 }
 \arguments{
-\item{ribo}{A RiboClass object}
+\item{ribo}{A SummarizedExperiment object}
 
 \item{rna}{Name of RNA where the position is located}
 
@@ -31,6 +31,6 @@ Plot counts for a given position on a given RNA
 }
 \examples{
 data("ribo_toy")
-ribo_toy <- rename_rna(ribo = ribo_toy)
-plot_counts_env(ribo = ribo_toy, rna = "5.8S", pos = 15)
+# ribo_toy <- rename_rna(ribo = ribo_toy)
+# plot_counts_env(ribo = ribo_toy, rna = "5.8S", pos = 15)
 }

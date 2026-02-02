@@ -2,14 +2,14 @@
 % Please edit documentation in R/format_to_plot.R
 \name{format_to_plot}
 \alias{format_to_plot}
-\title{Transform RiboClass data to a "ggplot-friendly" data frame.}
+\title{Transform SummarizedExperiment data to a "ggplot-friendly" data frame.}
 \usage{
 format_to_plot(ribo, metadata_col = NULL, only_annotated = FALSE)
 }
 \arguments{
-\item{ribo}{A RiboClass object.}
+\item{ribo}{A SummarizedExperiment object.}
 
-\item{metadata_col}{Metadata columns to add. Must be in RiboClass' metadata.}
+\item{metadata_col}{Metadata columns to add. Must be in the object's metadata.}
 
 \item{only_annotated}{Keep only sites that have been annotated.}
 }
@@ -17,6 +17,10 @@ format_to_plot(ribo, metadata_col = NULL, only_annotated = FALSE)
 A ggplot-friendly dataframe with the following columns : 1) site; 2) sample; 3) cscore; ...) any metadata added
 }
 \description{
-Turn a RiboClass into a dataframe that should be ready to be used in ggplot.
+Turn a SummarizedExperiment into a dataframe that should be ready to be used in ggplot.
 Metadata columns can be added if extra informations are needed.
+}
+\examples{
+data("ribo_toy")
+# format_to_plot(ribo_toy)
 }

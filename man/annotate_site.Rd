@@ -7,7 +7,7 @@
 annotate_site(ribo, annot, anno_rna = 2, anno_pos = 1, anno_value = 3)
 }
 \arguments{
-\item{ribo}{a RiboClass object to annotate, see : 
+\item{ribo}{a SummarizedExperiment object to annotate, see :
 \code{\link{load_ribodata}}}
 
 \item{annot}{The dataframe containing annotations.}
@@ -19,20 +19,20 @@ annotate_site(ribo, annot, anno_rna = 2, anno_pos = 1, anno_value = 3)
 \item{anno_value}{Name or index of the column in annot containing nomenclature to apply.}
 }
 \value{
-An annotated RiboClass (the site column in data should be filled with names from annot_value for known position).
+An annotated SummarizedExperiment (the site column in rowData should be filled with names from annot_value for known position).
 }
 \description{
-Annotate sites of interest by giving them a custom name. 
-Some analyses and plots can be applied on these specific sites when only_annotated parameter 
+Annotate sites of interest by giving them a custom name.
+Some analyses and plots can be applied on these specific sites when only_annotated parameter
 is available.
 }
 \details{
-This function will fill the 'site' column in your RiboClass's data with a nomenclature given in annot.
+This function will fill the 'site' column in your object's rowData with a nomenclature given in annot.
 }
 \examples{
-data('ribo_toy')
-data('human_methylated')
-ribo_toy <- rename_rna(ribo_toy ,c('5S','5.8S','18S','28S'))
-ribo_toy <- annotate_site(ribo_toy,human_methylated,anno_value ='Nomenclature')
+data("ribo_toy")
+data("human_methylated")
+# ribo_toy <- rename_rna(ribo_toy ,c('5S','5.8S','18S','28S'))
+# ribo_toy <- annotate_site(ribo_toy,human_methylated,anno_value ='Nomenclature')
 
 }

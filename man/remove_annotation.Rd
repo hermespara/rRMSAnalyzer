@@ -2,24 +2,24 @@
 % Please edit documentation in R/site_annotation.R
 \name{remove_annotation}
 \alias{remove_annotation}
-\title{Remove site annotations of a given RiboClass}
+\title{Remove site annotations of a given SummarizedExperiment}
 \usage{
 remove_annotation(ribo, annotation_to_remove = NULL)
 }
 \arguments{
-\item{ribo}{A RiboClass object.}
+\item{ribo}{A SummarizedExperiment object.}
 
 \item{annotation_to_remove}{Specific annotated sites to remove. If set to NULL,
 the function removes all annotations.}
 }
 \value{
-A RiboClass object where all annotated position have been replaced by
+A SummarizedExperiment object where all annotated position have been replaced by
 NA, the default value.
 }
 \description{
-Remove site annotations of a given RiboClass
+Remove site annotations of a given SummarizedExperiment
 }
 \examples{
-data('ribo_toy')
-remove_annotation(ribo_toy)
+data("ribo_toy")
+# remove_annotation(ribo_toy)
 }

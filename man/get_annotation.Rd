@@ -2,23 +2,23 @@
 % Please edit documentation in R/site_annotation.R
 \name{get_annotation}
 \alias{get_annotation}
-\title{Get annotation of a RiboClass}
+\title{Get annotation of a SummarizedExperiment}
 \usage{
 get_annotation(ribo)
 }
 \arguments{
-\item{ribo}{A RiboClass}
+\item{ribo}{A SummarizedExperiment}
 }
 \value{
 A dataframe with the rna name, the position on the rna and the annotated site.
 }
 \description{
-Get annotation of a RiboClass
+Get annotation of a SummarizedExperiment
 }
 \examples{
 data("ribo_toy")
 data("human_methylated")
-ribo_toy <- rename_rna(ribo_toy)
-ribo_toy <- annotate_site(ribo_toy,human_methylated)
-get_annotation(ribo_toy)
+# ribo_toy <- rename_rna(ribo_toy)
+# ribo_toy <- annotate_site(ribo_toy,human_methylated)
+# get_annotation(ribo_toy)
 }

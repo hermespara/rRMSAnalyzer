@@ -15,7 +15,7 @@ report(
 )
 }
 \arguments{
-\item{ribo}{a RiboClass object.}
+\item{ribo}{a SummarizedExperiment object.}
 
 \item{rmdfile}{filename of the Rmarkdown template to use.}
 
@@ -29,7 +29,7 @@ report(
 }
 \description{
 Note : if you want to create your own report template,
-please make sure it has the following header : 
+please make sure it has the following header :
 
 ---
 title: "RMSAnalyzer : title of the report"

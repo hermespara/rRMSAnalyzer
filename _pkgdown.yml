@@ -12,41 +12,46 @@ reference:
 - contents:
   - human_methylated
   - human_suspected
-- title: RiboClass annotation
-  desc: Functions to add, remove or keep selected annotation in a RiboClass.
+- title: SummarizedExperiment annotation
+  desc: Functions to add, remove or keep selected annotation in a SummarizedExperiment.
 - contents:
   - annotate_site
   - get_annotation
   - remove_annotation
   - keep_selected_annotation
 - title: Data importation
-  desc: Import data to rRMSAnalyzer and generate a RiboClass.
+  desc: Import data to rRMSAnalyzer and generate a SummarizedExperiment.
 - contents:
   - load_ribodata
-  - new_riboclass
+  - create_se
 - title: C-score computation and adjustment
   desc: Annotation data shipped with rRMSAnalyzer.
 - contents:
   - compute_cscore
   - adjust_bias
-- title: RiboClass customization
-  desc: Customize an already generated RiboClass, by renaming/removing RNA or remove
+- title: SummarizedExperiment customization
+  desc: Customize an already generated SummarizedExperiment, by renaming/removing RNA or remove
     a sample.
 - contents:
   - show_rna_names
   - rename_rna
   - remove_rna
-  - remove_ribo_samples
-  - keep_ribo_samples
+  - remove_samples
+  - keep_samples
 - title: Utils
 - contents:
   - get_IQR
   - get_variant_sites
+- title: Theming
+  desc: Functions to customize the appearance of plots.
+- contents:
+  - theme_rRMSAnalyzer
+  - scale_color_rRMSAnalyzer
+  - scale_fill_rRMSAnalyzer
 - title: Plots
   desc: Different plots to show either samples and sites.
 - contents:
   - starts_with("plot_")
-  - starts_with("boxplot_")
 - title: Export data
   desc: Export data
 - contents:
@@ -54,6 +59,6 @@ reference:
   - format_to_plot
   - mean_samples_by_conditon
 - title: Reports
-  desc: Generate automated reports from a RiboClass
+  desc: Generate automated reports from a SummarizedExperiment
 - contents: starts_with("report_")
 

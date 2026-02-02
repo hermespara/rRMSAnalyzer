@@ -2,14 +2,12 @@
 % Please edit documentation in R/plot_heatmap_corr.R
 \name{plot_heatmap_corr}
 \alias{plot_heatmap_corr}
-\title{Plot a correlation heatmap from a riboclass object.
-
-Shows the correlation \strong{distance} between samples.}
+\title{Plot a correlation heatmap from a SummarizedExperiment object.}
 \usage{
 plot_heatmap_corr(ribo, values_col, color_col = NULL)
 }
 \arguments{
-\item{ribo}{A RiboClass object.}
+\item{ribo}{A SummarizedExperiment object.}
 
 \item{values_col}{Name of the column containing the value (either count or cscore).}
 
@@ -19,12 +17,10 @@ plot_heatmap_corr(ribo, values_col, color_col = NULL)
 ComplexHeatmap object
 }
 \description{
-Plot a correlation heatmap from a riboclass object.
-
 Shows the correlation \strong{distance} between samples.
 }
 \examples{
 data("ribo_toy")
-plot_heatmap_corr(ribo_toy,"count","condition")
+# plot_heatmap_corr(ribo_toy,"count","condition")
 
 }

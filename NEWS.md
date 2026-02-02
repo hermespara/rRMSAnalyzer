@@ -1,9 +1,10 @@
 # rRMSAnalyzer 2.0.1
 
-## New feature
-
+* Major refactor: transitioned core data structure from `RiboClass` to `SummarizedExperiment`.
+* Standardized function names: `new_riboclass` -> `create_se`, `boxplot_*` -> `plot_boxplot_*`, `*_ribo_samples` -> `*_samples`.
+* Improved error handling with `cli` package.
+* Updated vignettes and documentation.
 -   `get_annotation()`: get a dataframe with all current annotation in a RiboClass.
-
 -   `remove_annotation()`: Added a new parameter to select a subset of annotation to remove.
 
 # rRMSAnalyzer 2.0.0

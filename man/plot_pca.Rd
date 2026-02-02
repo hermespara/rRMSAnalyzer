@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_pca.R
 \name{plot_pca}
 \alias{plot_pca}
-\title{Principal component analysis of a RiboClass object}
+\title{Principal component analysis of a SummarizedExperiment object}
 \usage{
 plot_pca(
   ribo,
@@ -15,11 +15,11 @@ plot_pca(
 )
 }
 \arguments{
-\item{ribo}{A RiboClass object.}
+\item{ribo}{A SummarizedExperiment object.}
 
 \item{color_col}{Name of the column in the metadata used for coloring samples.}
 
-\item{axes}{Two-element vector indicating which pair of principal components 
+\item{axes}{Two-element vector indicating which pair of principal components
 to show.}
 
 \item{only_annotated}{If TRUE, use only annotated sites to plot PCA.}
@@ -36,9 +36,9 @@ generating the plot.}
 A ggplot or a dudi.pca object if object_only is set to True.
 }
 \description{
-Principal component analysis of a RiboClass object
+Principal component analysis of a SummarizedExperiment object
 }
 \examples{
-data('ribo_toy')
-plot_pca(ribo_toy,'run')
+data("ribo_toy")
+# plot_pca(ribo_toy,'run')
 }

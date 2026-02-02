@@ -16,7 +16,7 @@
 \arguments{
 \item{dudi.coa}{A coa object}
 
-\item{metadata}{RiboClass's metadata dataframe}
+\item{metadata}{SummarizedExperiment's metadata dataframe}
 
 \item{color_col}{Name of the column in the metadata used for coloring samples.}
 

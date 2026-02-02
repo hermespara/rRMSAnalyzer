@@ -1,32 +1,25 @@
-#' Update count values inside a RiboClass with a matrix of values
-#' 
-#' @param ribo a RiboClass object
-#' @param update_matrix a position x sample matrix containing the new values 
+#' Update count values inside a SummarizedExperiment with a matrix of values
 #'
-#' @return a RiboClass with updated values
+#' @param ribo a SummarizedExperiment object
+#' @param matrix_new a position x sample matrix containing the new values
+#'
+#' @return a SummarizedExperiment with updated values
 #' @keywords internal
 #'
-.update_ribo_count_with_matrix <- function(ribo, update_matrix) {
-  #first, check if we have the sample name in our column
-  update_df <- as.data.frame(update_matrix)
-  col_names <- sort(names(update_df))
-  riboclass_names <- sort(names(ribo[["data"]]))
-  
-  if(!identical(col_names,riboclass_names)) {
-    stop("mismatch between samplenames and matrix's samples names")
+.update_ribo_count_with_matrix <- function(ribo, matrix_new) {
+  check_is_se(ribo)
+  check_type(matrix_new, "matrix", "matrix_new")
+
+  # Verify dimensions
+  if (!all(dim(matrix_new) == dim(ribo))) {
+    cli::cli_abort("Dimensions of new matrix do not match SummarizedExperiment dimensions.")
   }
-  
-  # For each sample in the RiboClass, replace count values with matrix's ones
-  
-  count_list <- ribo[["data"]]
-  
-  for(sample in names(count_list)) {
-    count_list[[sample]]["count"] <- update_df[sample]
+
+  # Ensure column names match (sanity check)
+  if (!all(colnames(matrix_new) == colnames(ribo))) {
+    warning("Column names of new matrix do not match SummarizedExperiment column names.")
   }
-  
-  ribo[["data"]] <- count_list
-  
+
+  SummarizedExperiment::assay(ribo, "counts", withDimnames = FALSE) <- matrix_new
   return(ribo)
-  
-  
 }

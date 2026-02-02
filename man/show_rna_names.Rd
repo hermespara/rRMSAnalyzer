@@ -7,7 +7,7 @@
 show_rna_names(ribo = NULL)
 }
 \arguments{
-\item{ribo}{a RiboClass object}
+\item{ribo}{a SummarizedExperiment object}
 }
 \value{
 A vector with actual RNA names

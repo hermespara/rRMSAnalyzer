@@ -11,7 +11,7 @@ wrapper_kruskal_test(
 )
 }
 \arguments{
-\item{ribo}{a RiboClass}
+\item{ribo}{a SummarizedExperiment}
 
 \item{adjust_pvalues_method}{p-value adjustment method (default : "fdr")}
 

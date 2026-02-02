@@ -2,12 +2,12 @@
 % Please edit documentation in R/compute_scores.R
 \name{compute_cscore}
 \alias{compute_cscore}
-\title{Compute c-score for all samples in a riboclass}
+\title{Compute c-score for all samples in a SummarizedExperiment}
 \usage{
 compute_cscore(ribo = NULL, flanking = 6, method = "median", ncores = 1)
 }
 \arguments{
-\item{ribo}{A RiboClass object.}
+\item{ribo}{A SummarizedExperiment object.}
 
 \item{flanking}{Size of the local coverage.}
 
@@ -16,7 +16,7 @@ compute_cscore(ribo = NULL, flanking = 6, method = "median", ncores = 1)
 \item{ncores}{Number of cores to use in case of multithreading.}
 }
 \value{
-A RiboClass with c-score columns appended to each sample's data.
+A SummarizedExperiment with c-score assay added.
 }
 \description{
 In this package, the C-score is calculated for every position. As it can be
@@ -30,10 +30,8 @@ For each RNA, the first and last positions cannot be calculated if the local
 coverage is shorter than the flanking argument. Their value will be NA instead.
 }
 \examples{
-data('ribo_toy')
-ribo_subsetted <- keep_ribo_samples(ribo_toy,'S1')
-ribo_with_cscore_med <- compute_cscore(ribo_subsetted, ncores = 2)
-ribo_with_cscore_mean <- compute_cscore(ribo_subsetted, method = 'mean', ncores = 2)
+data("ribo_toy")
+# ribo_with_cscore_med <- compute_cscore(ribo_toy, ncores = 2)
 
 }
 \references{

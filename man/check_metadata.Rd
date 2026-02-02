@@ -2,12 +2,12 @@
 % Please edit documentation in R/utils.R
 \name{check_metadata}
 \alias{check_metadata}
-\title{Check if a vector of strings correspond to valid metadata in a given RiboClass}
+\title{Check if a vector of strings correspond to valid metadata in a given SummarizedExperiment}
 \usage{
 check_metadata(ribo, metadata_name)
 }
 \arguments{
-\item{ribo}{A RiboClass.}
+\item{ribo}{A SummarizedExperiment.}
 
 \item{metadata_name}{The vector of string to check against ribo's metadata.}
 }

@@ -7,7 +7,7 @@
 .calculate_pca(cscore.matrix = NULL)
 }
 \arguments{
-\item{cscore.matrix}{matrix of c-score extracted from a RiboClass with ' \code{\link{extract_data}}}
+\item{cscore.matrix}{matrix of c-score extracted from a SummarizedExperiment with ' \code{\link{extract_data}}}
 }
 \value{
 dudi.pca object

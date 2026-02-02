@@ -7,7 +7,7 @@
 adjust_bias(ribo, batch, ncores = 1, ...)
 }
 \arguments{
-\item{ribo}{a RiboClass object.}
+\item{ribo}{a SummarizedExperiment object.}
 
 \item{batch}{Name of the column in metadata that contains the batch number.}
 
@@ -16,20 +16,19 @@ adjust_bias(ribo, batch, ncores = 1, ...)
 \item{...}{Parameters to pass to sva's \code{\link[sva]{ComBat_seq}} function.}
 }
 \value{
-RiboClass with adjusted read end count values and automatically recomputed C-scores.
+SummarizedExperiment with adjusted read end count values and automatically recomputed C-scores.
 }
 \description{
-Batch effect of RiboMethSeq data can be adjusted using the ComBat-seq method. adjust_bias is a wrapper to perform ComBat-seq adjustment. 
+Batch effect of RiboMethSeq data can be adjusted using the ComBat-seq method. adjust_bias is a wrapper to perform ComBat-seq adjustment.
 
-It will return a new RiboClass with adjusted read end count values and C-scores automatically recomputed with the same setup parameters.
+It will return a new SummarizedExperiment with adjusted read end count values and C-scores automatically recomputed with the same setup parameters.
 }
 \details{
-You must have a column with the batch number for each sample in your RiboClass’s metadata.
+You must have a column with the batch number for each sample in your object's metadata (colData).
 }
 \examples{
-data('ribo_toy')
-ribo_toy_two <- keep_ribo_samples(ribo_toy,c('S1','RNA1','S7','RNA2'))
-ribo_toy_adjusted <- adjust_bias(ribo_toy_two,'run') 
+data("ribo_toy")
+# ribo_toy_adjusted <- adjust_bias(ribo_toy,'run')
 
 }
 \references{

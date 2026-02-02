@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_heatmap.R
 \name{plot_heatmap}
 \alias{plot_heatmap}
-\title{Plot heatmap for a riboclass object.}
+\title{Plot heatmap for a SummarizedExperiment object.}
 \usage{
 plot_heatmap(
   ribo,
@@ -15,7 +15,7 @@ plot_heatmap(
 )
 }
 \arguments{
-\item{ribo}{A RiboClass object.}
+\item{ribo}{A SummarizedExperiment object.}
 
 \item{color_col}{Vector of the metadata columns’ name used for coloring samples.}
 
@@ -37,8 +37,8 @@ This easy function will let you display an heatmap for any given column (count o
 }
 \examples{
 data("ribo_toy")
-data("human_methylated")#' 
-ribo_toy <- rename_rna(ribo_toy)
-ribo_toy <- annotate_site(ribo_toy,human_methylated)
-plot_heatmap(ribo_toy,  color_col = c("run","condition"), only_annotated=TRUE)
+# data("human_methylated")
+# ribo_toy <- rename_rna(ribo_toy)
+# ribo_toy <- annotate_site(ribo_toy,human_methylated)
+# plot_heatmap(ribo_toy,  color_col = c("run","condition"), only_annotated=TRUE)
 }

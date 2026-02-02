@@ -25,6 +25,6 @@ The sites that show an IQR/variance higher than median + 2*MAD are colored in re
 data("ribo_toy")
 data("human_methylated")
 ribo_toy <- rename_rna(ribo_toy)
-ribo_toy <- annotate_site(ribo_toy,human_methylated)
+ribo_toy <- annotate_site(ribo_toy, human_methylated)
 plot_sites_by_IQR(ribo = ribo_toy, plot = "IQR")
 }
