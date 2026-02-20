@@ -4,24 +4,39 @@
 #' @param metadata Metadata associated to samples c-score matrix.
 #' @param adjust_pvalues_method Method to adjust p-value, one of p.adjust.methods.
 #' @param factor_column Metadata column used to group samples by.
+#' @param statistical_test Statistical test used to compute p-values.
+#' One of "kruskal" (wilcox is automatically used if there are 2 groups) or "t.test".
 #'
 #' @return A dataframe with three columns : 1) site : RNA site, 2) p.val : raw p-values, 3) adjusted p-values.
 #' @keywords internal
 #'
-kruskal_test_on_cscores <- function(cscore_matrix = NULL, metadata = NULL, adjust_pvalues_method = "fdr", factor_column = NULL) {
+kruskal_test_on_cscores <- function(cscore_matrix = NULL,
+                                    metadata = NULL,
+                                    adjust_pvalues_method = "fdr",
+                                    factor_column = NULL,
+                                    statistical_test = "kruskal") {
   check_type(cscore_matrix, "data.frame", "cscore_matrix")
   check_type(metadata, "data.frame", "metadata")
   check_type(adjust_pvalues_method, "character", "adjust_pvalues_method", length = 1)
   check_type(factor_column, "character", "factor_column", length = 1)
+  check_type(statistical_test, "character", "statistical_test", length = 1)
+  check_in_set(tolower(statistical_test), c("kruskal", "t.test"), "statistical_test")
 
   if (!factor_column %in% colnames(metadata)) {
     cli::cli_abort("{.arg factor_column} {.val {factor_column}} is not present in metadata.")
   }
 
   cscore_matrix <- as.data.frame(cscore_matrix)
-
   cscore_matrix <- cscore_matrix[stats::complete.cases(cscore_matrix), match(metadata[, "samplename"], colnames(cscore_matrix))] # order column cscores as metadata
-  test_to_perform <- ifelse(length(unique(metadata[, factor_column])) > 2, "kruskal", "wilcox")
+  n_groups <- length(unique(metadata[, factor_column]))
+  test_to_perform <- tolower(statistical_test)
+
+  if (test_to_perform == "kruskal") {
+    test_to_perform <- ifelse(n_groups > 2, "kruskal", "wilcox")
+  }
+  if (test_to_perform == "t.test" && n_groups != 2) {
+    cli::cli_abort("{.arg statistical_test} = {.val t.test} requires exactly 2 groups in {.arg factor_column}. Found {n_groups}.")
+  }
 
   if (test_to_perform == "kruskal") {
     kruskal_test_pvalues <- apply(cscore_matrix, 1, function(x) {
@@ -33,8 +48,11 @@ kruskal_test_on_cscores <- function(cscore_matrix = NULL, metadata = NULL, adjus
       stats::wilcox.test(x ~ metadata[, factor_column], exact = TRUE)$p.value # test each row and get p.value
     })
   }
-
-
+  if (test_to_perform == "t.test") {
+    kruskal_test_pvalues <- apply(cscore_matrix, 1, function(x) {
+      stats::t.test(x ~ metadata[, factor_column])$p.value
+    })
+  }
 
   df_kruskal_pvalues <- data.frame(
     site = names(kruskal_test_pvalues), p.val = kruskal_test_pvalues,
@@ -115,16 +133,21 @@ get_range <- function(cscore_matrix = NULL, metadata = NULL, factor_column = NUL
 #' @param ribo a SummarizedExperiment
 #' @param adjust_pvalues_method p-value adjustment method (default : "fdr")
 #' @param factor_column Metadata column used to group samples by.
+#' @param statistical_test Statistical test used to compute p-values.
+#' One of "kruskal" (wilcox is automatically used if there are 2 groups) or "t.test".
 #'
 #' @return A dataframe where each site is a row and with the following column :
 #'  1) site : name of the site; 2) p.val : raw p-value; 3) p.adj : adjusted p-value 4) mean_max_min_difference : range between conditions of mean c-score
 #' @keywords internal
 wrapper_kruskal_test <- function(ribo = NULL,
                                  adjust_pvalues_method = "fdr",
-                                 factor_column = NULL) {
+                                 factor_column = NULL,
+                                 statistical_test = "kruskal") {
   check_is_se(ribo)
   check_type(adjust_pvalues_method, "character", "adjust_pvalues_method", length = 1)
   check_type(factor_column, "character", "factor_column", length = 1)
+  check_type(statistical_test, "character", "statistical_test", length = 1)
+  check_in_set(tolower(statistical_test), c("kruskal", "t.test"), "statistical_test")
   check_metadata(ribo, factor_column)
 
   metadata <- as.data.frame(SummarizedExperiment::colData(ribo))
@@ -142,7 +165,9 @@ wrapper_kruskal_test <- function(ribo = NULL,
   df_pval <- kruskal_test_on_cscores(
     cscore_matrix = cscore_matrix,
     metadata = metadata,
-    factor_column = factor_column
+    adjust_pvalues_method = adjust_pvalues_method,
+    factor_column = factor_column,
+    statistical_test = statistical_test
   )
 
   df_min_max <- get_range(
