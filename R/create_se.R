@@ -210,7 +210,8 @@ create_se <- function(count_path,
     # specify the correct separator
     first_file <- rna_counts_dt[[1]]
     if (ncol(first_file) < 3) {
-      cli::cli_abort("not enough columns in your count data !{.br} Check if you have specified the correct columns separator in count_sep")
+      cli::cli_abort("not enough columns in your count data !
+      \nCheck if you have specified the correct columns separator in count_sep")
     }
 
     # Helper function to check column existence
