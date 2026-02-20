@@ -6,6 +6,9 @@
 #' @param axes Two-element vector indicating which pair of principal components
 #' to show.
 #' @param only_annotated If TRUE, use only annotated sites to plot PCA.
+#' @param sites A character vector of specific annotated site names to use for
+#' PCA (e.g., \code{c("28S_Am1310", "18S_Am99")}). Cannot be used together with
+#' \code{only_annotated = TRUE}.
 #' @param title Title to display on the plot. 'default' for default title.
 #' @param subtitle Subtitle to display on the plot. 'samples' for number of
 #' samples. 'none' for no subtitle.
@@ -20,7 +23,8 @@
 #' # plot_pca(ribo_toy,'run')
 #' plot_pca(ribo_toy, "run", draw_ellipses = TRUE)
 plot_pca <- function(ribo, color_col = NULL, axes = c(1, 2),
-                     only_annotated = FALSE, title = "default",
+                     only_annotated = FALSE, sites = NULL,
+                     title = "default",
                      subtitle = "samples", draw_ellipses = FALSE,
                      object_only = FALSE) {
   if (missing(ribo)) {
@@ -46,9 +50,12 @@ plot_pca <- function(ribo, color_col = NULL, axes = c(1, 2),
     check_metadata(ribo, color_col)
   }
 
+  check_type(sites, "character", "sites")
+
   pca_matrix <- extract_data(ribo, "cscore",
     position_to_rownames = TRUE,
-    only_annotated = only_annotated
+    only_annotated = only_annotated,
+    sites = sites
   )
 
   pca_calculated <- .calculate_pca(pca_matrix)
