@@ -1,29 +1,21 @@
-
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# rRMSAnalyzer: package to analyze RiboMethSeq data
+# rRMSAnalyzer: Comprehensive Analysis of rRNA 2'-O-Methylation
 
-RiboMethSeq is an RNAseq-based approach to analyze 2’O-ribose
-methylation (2’Ome).
+**rRMSAnalyzer** is an R package designed for the analysis and visualization of **rRNA 2'-O-ribose methylation (2'-O-Me)**, a critical chemical modification that fine-tunes ribosomal function and translation accuracy.
 
-rRMSAnalyzer is an R package that provides a set of easy-to-use
-functions to evaluate 2’Ome levels by computing C-scores from
-RiboMethSeq read end counts as input.
+Using data from **RiboMethSeq**, an RNA-seq-based protocol, rRMSAnalyzer enables researchers to quantify 2'-O-Me levels with high precision. By computing **C-scores** (methylation scores) from read-end counts, the package provides a robust framework for exploring methylation landscapes across different biological conditions.
 
-Available features (version 2):
+### Key Features (Version 2)
 
-- C-score computation (using either mean or median for the window of
-  neighboring positions)
-- Batch effect adjustment with CombatSeq
-- Different visualizations to compare samples or sites
-- Include a table of annotated human rRNA sites
-- Export computed C-scores into a dataframe
-- Semi-automated quality control report
+*   **Precise Quantification**: Compute C-scores using flexible parameters (mean or median local coverage).
+*   **Batch Effect Correction**: Integrated **ComBat-Seq** support to remove technical biases and ensure robust comparisons.
+*   **Rich Visualization**: Generate publication-ready plots (PCA, Heatmaps, Boxplots) to explore methylation patterns.
+*   **Annotated Reference Data**: Includes curated lists of known human rRNA methylation sites.
+*   **Automated Reporting**: Generate comprehensive quality control reports with a single function.
+*   **Seamless Integration**: Built on the `SummarizedExperiment` class for interoperability with the Bioconductor ecosystem.
 
-> **Note** We have also developed a [dedicated Nextflow
-> pipeline](https://github.com/RibosomeCRCL/ribomethseq-nf) to process
-> the data from sequencing output (fastq files) to useful raw data for
-> rRMSAnalyzer (read end counts).
+> **Note**: For processing raw sequencing data (FASTQ) into read-end counts compatible with rRMSAnalyzer, we recommend our dedicated [Nextflow pipeline](https://github.com/RibosomeCRCL/ribomethseq-nf).
 
 ## Installation
 
@@ -58,18 +50,20 @@ ribo <- adjust_bias(ribo,"library")
 plot_pca(ribo,"condition")
 ```
 
-## Getting started
+## Documentation
 
-The “getting started” is available on our website:
-<https://ribosomecrcl.github.io/rRMSAnalyzer/>
+For a comprehensive guide on using **rRMSAnalyzer**, please visit our [official website](https://ribosomecrcl.github.io/rRMSAnalyzer/).
 
-A test dataset (ribo_toy) is included in the package.
+*   [Getting Started](https://ribosomecrcl.github.io/rRMSAnalyzer/articles/rRMSAnalyzer.html): A step-by-step tutorial.
+*   [Reference](https://ribosomecrcl.github.io/rRMSAnalyzer/reference/index.html): Detailed function documentation.
 
-## Help, bug reports and suggestions
+*A toy dataset (`ribo_toy`) is included in the package for testing and demonstration.*
 
-To report a bug or any suggestion to improve the package, please let us
-known by opening a new issue on:
-<https://github.com/RibosomeCRCL/rRMSAnalyzer/issues>
+## Support & Contributions
+
+We welcome feedback and contributions!
+*   **Report Bugs or Suggest Features**: Please open an issue on our [GitHub Issues page](https://github.com/RibosomeCRCL/rRMSAnalyzer/issues).
+*   **Contribute**: Feel free to submit puly requests to improve the package.
 
 ## Acknowledgements
 
