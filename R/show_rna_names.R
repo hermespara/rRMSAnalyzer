@@ -11,6 +11,6 @@
 #' show_rna_names(ribo = ribo_toy)
 show_rna_names <- function(ribo = NULL) {
   check_is_se(ribo)
-  RNA_names <- SummarizedExperiment::metadata(ribo)$rna_names[[2]]
+  RNA_names <- ribo@metadata$rna_names[[2]]
   return(RNA_names)
 }
