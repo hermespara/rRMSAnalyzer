@@ -2,6 +2,8 @@
 #'
 #' @param ribo A SummarizedExperiment object.
 #' @param color_col Name of the column in the metadata used for coloring samples.
+#' @param sample_colors Optional named character vector mapping metadata values
+#' in \code{color_col} to colors.
 #' @param axes Two-element vector indicating which pair of COA components
 #' to show.
 #' @param only_annotated If TRUE, use only annotated sites to plot COA.
@@ -21,7 +23,8 @@
 plot_coa <- function(ribo, color_col = NULL, axes = c(1, 2),
                      only_annotated = FALSE, title = "default",
                      subtitle = "default", draw_ellipses = FALSE,
-                     draw_centroids = FALSE, object_only = FALSE) {
+                     draw_centroids = FALSE, sample_colors = NULL,
+                     object_only = FALSE) {
   check_is_se(ribo)
   check_type(only_annotated, "logical", "only_annotated", length = 1)
   check_type(draw_ellipses, "logical", "draw_ellipses", length = 1)
@@ -29,6 +32,7 @@ plot_coa <- function(ribo, color_col = NULL, axes = c(1, 2),
   check_type(object_only, "logical", "object_only", length = 1)
   if (!is.null(color_col)) {
     check_metadata(ribo, color_col)
+    check_named_colors(sample_colors, SummarizedExperiment::colData(ribo)[[color_col]], "sample_colors")
   }
 
   coa_matrix <- extract_data(ribo, "counts",
@@ -45,7 +49,8 @@ plot_coa <- function(ribo, color_col = NULL, axes = c(1, 2),
   return(.plot_coa(coa_calculated, SummarizedExperiment::colData(ribo),
     color_col,
     axes = axes, title, subtitle,
-    draw_ellipses = draw_ellipses, draw_centroids = draw_centroids
+    draw_ellipses = draw_ellipses, draw_centroids = draw_centroids,
+    sample_colors = sample_colors
   ))
 }
 
@@ -82,7 +87,7 @@ plot_coa <- function(ribo, color_col = NULL, axes = c(1, 2),
                       metadata = NULL, color_col = NULL,
                       axes = c(1, 2), title = "default",
                       subtitle = "default", draw_ellipses = FALSE,
-                      draw_centroids = FALSE) {
+                      draw_centroids = FALSE, sample_colors = NULL) {
   # Prepare data for plotting (samples are columns in COA of sites x samples)
   # dudi.coa on (sites x samples) -> $co are column coordinates (samples)
   df_coa <- data.frame(dudi.coa$co)
@@ -137,8 +142,8 @@ plot_coa <- function(ribo, color_col = NULL, axes = c(1, 2),
     }
 
     p <- p + ggplot2::geom_point(ggplot2::aes(color = .data[[color_colname]]), size = 2) +
-      scale_color_rRMSAnalyzer() +
-      scale_fill_rRMSAnalyzer() +
+      scale_color_rRMSAnalyzer(values = sample_colors) +
+      scale_fill_rRMSAnalyzer(values = sample_colors) +
       ggplot2::labs(color = color_colname)
 
     if (draw_centroids && !is.null(group_layers$centroids)) {

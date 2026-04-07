@@ -42,12 +42,17 @@ theme_rRMSAnalyzer <- function(base_size = 14, base_family = "sans") {
 #' A colorblind-friendly palette for categorical variables.
 #'
 #' @param ... Arguments passed to \code{\link[ggplot2]{scale_color_manual}}.
+#' @param values Optional named character vector of colors to use instead of
+#' the default rRMSAnalyzer palette.
 #' @return A discrete color scale.
 #' @import ggplot2
 #' @export
-scale_color_rRMSAnalyzer <- function(...) {
+scale_color_rRMSAnalyzer <- function(..., values = NULL) {
     # Okabe-Ito palette (Colorblind friendly)
-    palette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999")
+    palette <- values
+    if (is.null(palette)) {
+        palette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999")
+    }
     ggplot2::scale_color_manual(values = palette, ...)
 }
 
@@ -56,10 +61,15 @@ scale_color_rRMSAnalyzer <- function(...) {
 #' A colorblind-friendly palette for categorical variables.
 #'
 #' @param ... Arguments passed to \code{\link[ggplot2]{scale_fill_manual}}.
+#' @param values Optional named character vector of colors to use instead of
+#' the default rRMSAnalyzer palette.
 #' @return A discrete fill scale.
 #' @import ggplot2
 #' @export
-scale_fill_rRMSAnalyzer <- function(...) {
-    palette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999")
+scale_fill_rRMSAnalyzer <- function(..., values = NULL) {
+    palette <- values
+    if (is.null(palette)) {
+        palette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999")
+    }
     ggplot2::scale_fill_manual(values = palette, ...)
 }

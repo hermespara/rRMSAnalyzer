@@ -2,6 +2,9 @@
 #' @description This easy function will let you display an heatmap for any given column (count or c-score). You can add an additionnal layer of information with metadata columns.
 #' @param ribo A SummarizedExperiment object.
 #' @param color_col Vector of the metadata columns’ name used for coloring samples.
+#' @param sample_colors Optional custom colors for sample annotations. Supply a
+#' named character vector when \code{color_col} has length 1, or a named list
+#' of named character vectors when multiple metadata columns are used.
 #' @param only_annotated Use only annotated sites (default = TRUE).
 #' @param title Title to display on the plot. "default" for default title.
 #' @param cutree_rows number of clusters the rows are divided into, based on the hierarchical clustering (using cutree).
@@ -17,7 +20,8 @@
 #' # ribo_toy <- annotate_site(ribo_toy,human_methylated)
 #' # plot_heatmap(ribo_toy,  color_col = c("run","condition"), only_annotated=TRUE)
 plot_heatmap <- function(ribo, color_col = NULL, only_annotated = FALSE, title,
-                         cutree_rows = 4, cutree_cols = 2, ...) {
+                         cutree_rows = 4, cutree_cols = 2,
+                         sample_colors = NULL, ...) {
   check_is_se(ribo)
   check_type(only_annotated, "logical", "only_annotated", length = 1)
   check_type(cutree_rows, "numeric", "cutree_rows", length = 1)
@@ -32,7 +36,7 @@ plot_heatmap <- function(ribo, color_col = NULL, only_annotated = FALSE, title,
   .plot_heatmap(matrix, SummarizedExperiment::colData(ribo),
     color_col = color_col,
     most_variant = FALSE, title = title, cutree_rows = cutree_rows,
-    cutree_cols = cutree_cols, ...
+    cutree_cols = cutree_cols, sample_colors = sample_colors, ...
   )
 }
 
@@ -49,12 +53,12 @@ plot_heatmap <- function(ribo, color_col = NULL, only_annotated = FALSE, title,
 .plot_heatmap <- function(cscore_matrix = NULL, metadata = NULL,
                           color_col = NULL, most_variant = FALSE,
                           title = "default", cutree_rows,
-                          cutree_cols, ...) {
+                          cutree_cols, sample_colors = NULL, ...) {
   heat_colors <- grDevices::hcl.colors(7, "inferno")
 
 
   if (!is.null(color_col)) {
-    col <- generate_palette(metadata, color_col)
+    col <- generate_palette(metadata, color_col, custom_colors = sample_colors)
     column_ha <- ComplexHeatmap::HeatmapAnnotation(df = metadata[color_col], col = col, na_col = "red")
   } else {
     column_ha <- NULL

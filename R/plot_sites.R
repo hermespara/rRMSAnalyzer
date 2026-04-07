@@ -31,13 +31,16 @@ select_most_differential_sites <- function(df_of_kruskal = NULL, p_cutoff = 1e-0
 #' @param df_of_kruskal Output of kruskal_test_on_cscores()
 #' @param most_differential_sites A list of most differential sites.
 #'  Output of select_most_differential_sites function.
+#' @param sample_colors Optional named character vector mapping group values to
+#' colors.
 #' @import ggplot2
 #'
 #' @keywords internal
 #'
 plot_most_differential_sites <- function(df_of_Cscores = NULL,
                                          df_of_kruskal = NULL,
-                                         most_differential_sites = NULL) {
+                                         most_differential_sites = NULL,
+                                         sample_colors = NULL) {
   group.id <- Cscore <- p.adj <- label <- NULL
 
   df_of_Cscores <- tidyr::pivot_longer(df_of_Cscores,
@@ -69,7 +72,7 @@ plot_most_differential_sites <- function(df_of_Cscores = NULL,
   p1 <- ggplot2::ggplot(cscore_diff_sites, ggplot2::aes(x = group.id, y = Cscore, fill = group.id)) +
     geom_boxplot() +
     theme_rRMSAnalyzer() +
-    scale_fill_rRMSAnalyzer() +
+    scale_fill_rRMSAnalyzer(values = sample_colors) +
     theme(
       axis.text.x = element_blank(),
       axis.ticks.x = element_blank(),
@@ -120,6 +123,8 @@ plot_most_differential_sites <- function(df_of_Cscores = NULL,
 #' @param statistical_test Statistical test used to compute p-values.
 #' One of "kruskal" (wilcox is automatically used if there are 2 groups) or "t.test".
 #' @param adjust_pvalues_method Method used to adjust p-value (one of p.adjust.methods)
+#' @param sample_colors Optional named character vector mapping metadata values
+#' in \code{factor_column} to colors.
 #' @param object_only Return the results of the kruskal-wallis and C-score mean range in a dataframe directly.
 #' @return a ggplot object.
 #' @export
@@ -135,6 +140,7 @@ plot_diff_sites <- function(ribo, factor_column,
                             cscore_cutoff = 0.05,
                             statistical_test = "kruskal",
                             adjust_pvalues_method = "fdr",
+                            sample_colors = NULL,
                             object_only = FALSE) {
   check_is_se(ribo)
   check_type(factor_column, "character", "factor_column", length = 1)
@@ -147,6 +153,7 @@ plot_diff_sites <- function(ribo, factor_column,
   site <- NULL
 
   check_metadata(ribo, factor_column)
+  check_named_colors(sample_colors, SummarizedExperiment::colData(ribo)[[factor_column]], "sample_colors")
   ribo_matrix <- extract_data(ribo, only_annotated = TRUE, position_to_rownames = TRUE)
   kruskal_df <- wrapper_kruskal_test(
     ribo,
@@ -187,6 +194,7 @@ plot_diff_sites <- function(ribo, factor_column,
   return(plot_most_differential_sites(
     df_of_Cscores = ribo_matrix_rn,
     df_of_kruskal = kruskal_df,
-    most_differential_sites = most_signi
+    most_differential_sites = most_signi,
+    sample_colors = sample_colors
   ))
 }

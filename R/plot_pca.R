@@ -3,6 +3,8 @@
 #'
 #' @param ribo A SummarizedExperiment object.
 #' @param color_col Name of the column in the metadata used for coloring samples.
+#' @param sample_colors Optional named character vector mapping metadata values
+#' in \code{color_col} to colors.
 #' @param axes Two-element vector indicating which pair of principal components
 #' to show.
 #' @param only_annotated If TRUE, use only annotated sites to plot PCA.
@@ -27,7 +29,7 @@ plot_pca <- function(ribo, color_col = NULL, axes = c(1, 2),
                      only_annotated = FALSE, sites = NULL,
                      title = "default",
                      subtitle = "samples", draw_ellipses = FALSE,
-                     draw_centroids = FALSE,
+                     draw_centroids = FALSE, sample_colors = NULL,
                      object_only = FALSE) {
   if (missing(ribo)) {
     cli::cli_abort(c(
@@ -50,6 +52,7 @@ plot_pca <- function(ribo, color_col = NULL, axes = c(1, 2),
 
   if (!is.null(color_col)) {
     check_metadata(ribo, color_col)
+    check_named_colors(sample_colors, SummarizedExperiment::colData(ribo)[[color_col]], "sample_colors")
   }
 
   check_type(sites, "character", "sites")
@@ -71,7 +74,8 @@ plot_pca <- function(ribo, color_col = NULL, axes = c(1, 2),
 
   facto_pca <- .plot_pca(pca_calculated, SummarizedExperiment::colData(ribo), color_col,
     axes = axes, title = title, subtitle = subtitle,
-    draw_ellipses = draw_ellipses, draw_centroids = draw_centroids
+    draw_ellipses = draw_ellipses, draw_centroids = draw_centroids,
+    sample_colors = sample_colors
   )
   return(facto_pca)
 }
@@ -107,7 +111,7 @@ plot_pca <- function(ribo, color_col = NULL, axes = c(1, 2),
 .plot_pca <- function(dudi.pca = NULL, metadata = NULL,
                       color_col = NULL, axes = axes, title = "default",
                       subtitle = "samples", draw_ellipses = FALSE,
-                      draw_centroids = FALSE) {
+                      draw_centroids = FALSE, sample_colors = NULL) {
   # Prepare data for plotting
   df_pca <- data.frame(dudi.pca$li)
   colnames(df_pca) <- paste0("Axis", seq_len(ncol(df_pca)))
@@ -168,8 +172,8 @@ plot_pca <- function(ribo, color_col = NULL, axes = c(1, 2),
     }
 
     p <- p + ggplot2::geom_point(ggplot2::aes(color = .data[[color_col]]), size = 3) +
-      scale_color_rRMSAnalyzer() +
-      scale_fill_rRMSAnalyzer()
+      scale_color_rRMSAnalyzer(values = sample_colors) +
+      scale_fill_rRMSAnalyzer(values = sample_colors)
 
     if (draw_centroids && !is.null(group_layers$centroids)) {
       p <- p + ggplot2::geom_point(

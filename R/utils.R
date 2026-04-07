@@ -116,6 +116,36 @@ check_in_set <- function(x, set, name) {
   }
 }
 
+#' Validate a named color mapping against observed metadata values.
+#'
+#' @param colors Named character vector of colors.
+#' @param values Metadata values that will be mapped to colors.
+#' @param arg_name Argument name used in error messages.
+#' @keywords internal
+check_named_colors <- function(colors, values, arg_name = "sample_colors") {
+  if (missing(colors) || is.null(colors)) {
+    return(invisible(NULL))
+  }
+
+  check_type(colors, "character", arg_name)
+
+  if (is.null(names(colors)) || any(names(colors) == "")) {
+    cli::cli_abort("{.arg {arg_name}} must be a named character vector.")
+  }
+
+  values <- unique(as.character(values[!is.na(values)]))
+  missing_values <- setdiff(values, names(colors))
+
+  if (length(missing_values) > 0) {
+    cli::cli_abort(c(
+      "{.arg {arg_name}} must provide a color for each plotted group.",
+      "x" = "Missing color mapping for {.val {missing_values}}."
+    ))
+  }
+
+  invisible(NULL)
+}
+
 # Compute ellipse coordinates and centroids for grouped 2D data.
 .group_ellipses <- function(data, x_col, y_col, group_col,
                             level = 0.95, npoints = 100,
