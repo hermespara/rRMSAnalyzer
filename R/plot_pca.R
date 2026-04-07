@@ -51,8 +51,7 @@ plot_pca <- function(ribo, color_col = NULL, axes = c(1, 2),
   }
 
   if (!is.null(color_col)) {
-    check_metadata(ribo, color_col)
-    check_named_colors(sample_colors, SummarizedExperiment::colData(ribo)[[color_col]], "sample_colors")
+    validate_plot_colors(ribo, color_col, sample_colors)
   }
 
   check_type(sites, "character", "sites")
@@ -129,24 +128,24 @@ plot_pca <- function(ribo, color_col = NULL, axes = c(1, 2),
   }
 
   # Title
-  if (title == "default") {
-    plot_title <- "Principal Component Analysis from C-score data"
-  } else {
-    plot_title <- title
-  }
+  plot_title <- resolve_plot_text(
+    title,
+    default_value = "Principal Component Analysis from C-score data",
+    arg_name = "title"
+  )
 
   # Subtitle
-  if (subtitle == "samples") {
-    plot_subtitle <- paste(
+  plot_subtitle <- resolve_plot_text(
+    subtitle,
+    default_value = paste(
       nrow(df_pca),
       "samples and", ncol(dudi.pca$tab),
       "positions"
-    )
-  } else if (subtitle == "none") {
-    plot_subtitle <- ggplot2::waiver()
-  } else {
-    plot_subtitle <- subtitle
-  }
+    ),
+    arg_name = "subtitle",
+    allow_none = TRUE,
+    default_tokens = c("default", "samples")
+  )
 
   # Calculate variance explained
   eig_percent <- round(dudi.pca$eig / sum(dudi.pca$eig) * 100, 1)
@@ -172,8 +171,7 @@ plot_pca <- function(ribo, color_col = NULL, axes = c(1, 2),
     }
 
     p <- p + ggplot2::geom_point(ggplot2::aes(color = .data[[color_col]]), size = 3) +
-      scale_color_rRMSAnalyzer(values = sample_colors) +
-      scale_fill_rRMSAnalyzer(values = sample_colors)
+      plot_group_scales(sample_colors = sample_colors)
 
     if (draw_centroids && !is.null(group_layers$centroids)) {
       p <- p + ggplot2::geom_point(

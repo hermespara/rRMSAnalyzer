@@ -30,10 +30,7 @@ plot_coa <- function(ribo, color_col = NULL, axes = c(1, 2),
   check_type(draw_ellipses, "logical", "draw_ellipses", length = 1)
   check_type(draw_centroids, "logical", "draw_centroids", length = 1)
   check_type(object_only, "logical", "object_only", length = 1)
-  if (!is.null(color_col)) {
-    check_metadata(ribo, color_col)
-    check_named_colors(sample_colors, SummarizedExperiment::colData(ribo)[[color_col]], "sample_colors")
-  }
+  validate_plot_colors(ribo, color_col, sample_colors)
 
   coa_matrix <- extract_data(ribo, "counts",
     position_to_rownames = TRUE,
@@ -106,16 +103,20 @@ plot_coa <- function(ribo, color_col = NULL, axes = c(1, 2),
     color_col <- metadata[, color_col]
   }
 
-  if (title == "default") {
-    title <- "Correspondance analysis from count data"
-  }
-
-  if (subtitle == "default") {
-    subtitle <- paste(
+  title <- resolve_plot_text(
+    title,
+    default_value = "Correspondance analysis from count data",
+    arg_name = "title"
+  )
+  subtitle <- resolve_plot_text(
+    subtitle,
+    default_value = paste(
       ncol(dudi.coa$tab), "samples and", nrow(dudi.coa$tab),
       "positions (all)"
-    )
-  }
+    ),
+    arg_name = "subtitle",
+    allow_none = TRUE
+  )
 
   # Calculate variance explained (eigenvalues)
   eig_percent <- round(dudi.coa$eig / sum(dudi.coa$eig) * 100, 1)
@@ -142,8 +143,7 @@ plot_coa <- function(ribo, color_col = NULL, axes = c(1, 2),
     }
 
     p <- p + ggplot2::geom_point(ggplot2::aes(color = .data[[color_colname]]), size = 2) +
-      scale_color_rRMSAnalyzer(values = sample_colors) +
-      scale_fill_rRMSAnalyzer(values = sample_colors) +
+      plot_group_scales(sample_colors = sample_colors) +
       ggplot2::labs(color = color_colname)
 
     if (draw_centroids && !is.null(group_layers$centroids)) {

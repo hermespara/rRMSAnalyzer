@@ -3,6 +3,8 @@
 #' raw counts.
 #' @param ribo A SummarizedExperiment object.
 #' @param color_col Name of the column in the metadata used for coloring samples.
+#' @param sample_colors Optional named character vector mapping metadata values
+#' in \code{color_col} to colors.
 #' @param outlier Show boxplot outlier values.
 #' @param horizontal Show boxplot horizontally.
 #' @return A ggplot object.
@@ -13,15 +15,20 @@
 #' # boxplot_count(ribo_toy,"run")
 #'
 plot_boxplot_count <- function(ribo, color_col = NA,
-                               outlier = TRUE, horizontal = FALSE) {
+                               outlier = TRUE, horizontal = FALSE,
+                               sample_colors = NULL) {
   check_is_se(ribo)
   check_type(outlier, "logical", "outlier", length = 1)
   check_type(horizontal, "logical", "horizontal", length = 1)
+  if (!is.na(color_col)) {
+    validate_plot_colors(ribo, color_col, sample_colors)
+  }
 
   ribo_matrix <- extract_data(ribo, "count", position_to_rownames = TRUE)
 
   return(.plot_boxplot_samples(ribo_matrix, "count",
     SummarizedExperiment::colData(ribo), color_col, outlier,
+    sample_colors = sample_colors,
     horizontal = horizontal
   ))
 }
@@ -161,7 +168,8 @@ plot_boxplot_cscores <- function(ribo, outlier = TRUE, sort_by = c("median", "iq
 #' @keywords internal
 #'
 .plot_boxplot_samples <- function(matrix, values_col_name, metadata,
-                                  color_col = NA, outlier, horizontal) {
+                                  color_col = NA, outlier, horizontal,
+                                  sample_colors = NULL) {
   Sample <- NULL
   id_vars <- "Sample"
   matrix <- log10(matrix)
@@ -207,6 +215,10 @@ plot_boxplot_cscores <- function(ribo, outlier = TRUE, sort_by = c("median", "iq
       angle = 90, vjust = 0.5,
       hjust = 1
     ))
+
+  if (!is.na(color_col)) {
+    p <- p + plot_group_scales(sample_colors = sample_colors, color = FALSE, fill = TRUE)
+  }
 
 
   p <- p + ggplot2::geom_hline(yintercept = 2, colour = "#56B4E9", linetype = "dashed")

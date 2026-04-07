@@ -26,7 +26,8 @@
 #' # ribo_toy <- rename_rna(ribo_toy)
 #' # ribo_toy <- annotate_site(ribo_toy,human_methylated)
 #' # plot_heatmap(ribo_toy,  color_col = c("run","condition"), only_annotated=TRUE)
-plot_heatmap <- function(ribo, color_col = NULL, only_annotated = FALSE, title,
+plot_heatmap <- function(ribo, color_col = NULL, only_annotated = FALSE,
+                         title = "default",
                          sites = NULL, cutree_rows = 4, cutree_cols = 2,
                          clustering_distance = "manhattan",
                          clustering_method = "ward.D2",
@@ -36,8 +37,7 @@ plot_heatmap <- function(ribo, color_col = NULL, only_annotated = FALSE, title,
   check_type(sites, "character", "sites")
   check_type(cutree_rows, "numeric", "cutree_rows", length = 1)
   check_type(cutree_cols, "numeric", "cutree_cols", length = 1)
-  check_type(clustering_distance, "character", "clustering_distance", length = 1)
-  check_type(clustering_method, "character", "clustering_method", length = 1)
+  validate_clustering_args(clustering_distance, clustering_method)
 
   check_metadata(ribo, color_col)
   matrix <- extract_data(ribo, "cscore",
@@ -73,20 +73,24 @@ plot_heatmap <- function(ribo, color_col = NULL, only_annotated = FALSE, title,
                           clustering_method = "ward.D2",
                           sample_colors = NULL, ...) {
   heat_colors <- grDevices::hcl.colors(7, "inferno")
+  plot_title <- resolve_plot_text(
+    title,
+    default_value = "Heatmap of C-score values",
+    arg_name = "title"
+  )
 
 
-  if (!is.null(color_col)) {
-    col <- generate_palette(metadata, color_col, custom_colors = sample_colors)
-    column_ha <- ComplexHeatmap::HeatmapAnnotation(df = metadata[color_col], col = col, na_col = "red")
-  } else {
-    column_ha <- NULL
-  }
+  column_ha <- build_heatmap_annotation(
+    metadata = metadata,
+    color_col = color_col,
+    sample_colors = sample_colors
+  )
 
   cscore_matrix <- stats::na.omit(cscore_matrix)
   cscore_matrix <- as.matrix(cscore_matrix)
   ComplexHeatmap::Heatmap(cscore_matrix,
     col = heat_colors, name = "C-score",
-    row_title = "Position", column_title = "Sample",
+    row_title = "Position", column_title = plot_title,
     column_title_side = "bottom",
     cluster_rows = TRUE, cluster_columns = TRUE,
     clustering_distance_columns = clustering_distance,
@@ -95,6 +99,7 @@ plot_heatmap <- function(ribo, color_col = NULL, only_annotated = FALSE, title,
     clustering_method_rows = clustering_method,
     row_split = cutree_rows, column_split = cutree_cols,
     top_annotation = column_ha,
-    row_names_gp = grid::gpar(fontsize = 6)
+    row_names_gp = grid::gpar(fontsize = 6),
+    ...
   )
 }

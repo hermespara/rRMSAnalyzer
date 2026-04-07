@@ -146,6 +146,110 @@ check_named_colors <- function(colors, values, arg_name = "sample_colors") {
   invisible(NULL)
 }
 
+#' Resolve a user-supplied plot title/subtitle value.
+#'
+#' @param value Input value supplied by the user.
+#' @param default_value Default value returned when \code{value = "default"}.
+#' @param arg_name Argument name for validation errors.
+#' @param allow_none Whether \code{"none"} is accepted.
+#' @param none_value Value returned when \code{value = "none"}.
+#' @keywords internal
+resolve_plot_text <- function(value, default_value, arg_name,
+                              allow_none = FALSE,
+                              default_tokens = "default",
+                              none_value = ggplot2::waiver()) {
+  check_type(value, "character", arg_name, length = 1)
+
+  if (value %in% default_tokens) {
+    return(default_value)
+  }
+
+  if (allow_none && identical(value, "none")) {
+    return(none_value)
+  }
+
+  value
+}
+
+#' Validate a metadata color mapping used by plotting functions.
+#'
+#' @param ribo A SummarizedExperiment object.
+#' @param color_col Metadata column name, or NULL.
+#' @param sample_colors Optional named character vector of colors.
+#' @param color_arg Argument name used for the metadata column.
+#' @param sample_arg Argument name used for the color mapping.
+#' @keywords internal
+validate_plot_colors <- function(ribo, color_col = NULL, sample_colors = NULL,
+                                 color_arg = "color_col",
+                                 sample_arg = "sample_colors") {
+  if (is.null(color_col)) {
+    return(invisible(NULL))
+  }
+
+  check_type(color_col, "character", color_arg, length = 1)
+  check_metadata(ribo, color_col)
+  check_named_colors(
+    sample_colors,
+    SummarizedExperiment::colData(ribo)[[color_col]],
+    sample_arg
+  )
+
+  invisible(NULL)
+}
+
+#' Build a consistent set of discrete ggplot scales.
+#'
+#' @param sample_colors Optional named character vector of colors.
+#' @param color Whether to add a color scale.
+#' @param fill Whether to add a fill scale.
+#' @keywords internal
+plot_group_scales <- function(sample_colors = NULL, color = TRUE, fill = TRUE) {
+  scales <- list()
+
+  if (isTRUE(color)) {
+    scales <- c(scales, list(scale_color_rRMSAnalyzer(values = sample_colors)))
+  }
+
+  if (isTRUE(fill)) {
+    scales <- c(scales, list(scale_fill_rRMSAnalyzer(values = sample_colors)))
+  }
+
+  scales
+}
+
+#' Validate clustering arguments shared by heatmap-like plots.
+#'
+#' @param clustering_distance Distance metric name.
+#' @param clustering_method Linkage method name.
+#' @keywords internal
+validate_clustering_args <- function(clustering_distance = "manhattan",
+                                     clustering_method = "ward.D2") {
+  check_type(clustering_distance, "character", "clustering_distance", length = 1)
+  check_type(clustering_method, "character", "clustering_method", length = 1)
+  invisible(NULL)
+}
+
+#' Build a consistent ComplexHeatmap sample annotation layer.
+#'
+#' @param metadata Metadata dataframe.
+#' @param color_col Metadata columns to annotate, or NULL.
+#' @param sample_colors Optional custom colors.
+#' @param na_col Color for missing annotation values.
+#' @keywords internal
+build_heatmap_annotation <- function(metadata = NULL, color_col = NULL,
+                                     sample_colors = NULL, na_col = "red") {
+  if (is.null(color_col)) {
+    return(NULL)
+  }
+
+  col <- generate_palette(metadata, color_col, custom_colors = sample_colors)
+  ComplexHeatmap::HeatmapAnnotation(
+    df = metadata[color_col],
+    col = col,
+    na_col = na_col
+  )
+}
+
 # Compute ellipse coordinates and centroids for grouped 2D data.
 .group_ellipses <- function(data, x_col, y_col, group_col,
                             level = 0.95, npoints = 100,

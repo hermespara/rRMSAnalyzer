@@ -152,8 +152,12 @@ plot_diff_sites <- function(ribo, factor_column,
   check_type(object_only, "logical", "object_only", length = 1)
   site <- NULL
 
-  check_metadata(ribo, factor_column)
-  check_named_colors(sample_colors, SummarizedExperiment::colData(ribo)[[factor_column]], "sample_colors")
+  validate_plot_colors(
+    ribo,
+    color_col = factor_column,
+    sample_colors = sample_colors,
+    color_arg = "factor_column"
+  )
   ribo_matrix <- extract_data(ribo, only_annotated = TRUE, position_to_rownames = TRUE)
   kruskal_df <- wrapper_kruskal_test(
     ribo,
