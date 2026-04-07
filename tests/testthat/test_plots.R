@@ -11,16 +11,50 @@ test_that("test if plots creation do not fail", {
   ribo_toy <- annotate_site(ribo_toy, custom_anno)
 
   expect_no_error(plot_pca(ribo_toy, "condition"))
+  expect_no_error(plot_pca(ribo_toy, "condition",
+    sites = c("5.8S_Um14", "18S_Am99")
+  ))
+  expect_error(
+    plot_pca(ribo_toy, "condition", sites = c("FAKE_SITE")),
+    "No matching sites"
+  )
+  expect_error(
+    plot_pca(ribo_toy, "condition",
+      only_annotated = TRUE,
+      sites = c("5.8S_Um14")
+    ),
+    "cannot be used together"
+  )
+  expect_warning(
+    plot_pca(ribo_toy, "condition", sites = c("5.8S_Um14", "18S_Am99", "FAKE")),
+    "not found"
+  )
   expect_no_error(plot_coa(ribo_toy, "condition"))
+  expect_s3_class(
+    plot_boxplot_count(
+      ribo_toy,
+      color_col = "condition",
+      sample_colors = c("RNA ref" = "grey40", "cond1" = "blue", "cond2" = "red")
+    ),
+    "ggplot"
+  )
+  expect_error(
+    plot_boxplot_count(
+      ribo_toy,
+      color_col = "condition",
+      sample_colors = c("RNA ref" = "grey40")
+    ),
+    "Missing color mapping"
+  )
 
   expect_no_error(plot_boxplot_count(ribo_toy))
   expect_no_error(plot_boxplot_cscores(ribo_toy))
   expect_no_error(plot_rle(ribo_toy))
 
-  expect_no_error(plot_heatmap(ribo_toy,
+  expect_s4_class(plot_heatmap(ribo_toy,
     color_col = c("run", "condition")
-  ))
-  expect_no_error(plot_heatmap_corr(ribo_toy, "count", "run"))
+  ), "Heatmap")
+  expect_s4_class(plot_heatmap_corr(ribo_toy, "count", "run"), "Heatmap")
 
   expect_no_error(plot_counts_env(ribo_toy, "5S", 50))
   expect_no_error(plot_counts_env(ribo_toy, "5S", 50, c("S1", "S2")))
