@@ -9,7 +9,9 @@ plot_diff_sites(
   factor_column,
   p_cutoff = 0.01,
   cscore_cutoff = 0.05,
+  statistical_test = "kruskal",
   adjust_pvalues_method = "fdr",
+  sample_colors = NULL,
   object_only = FALSE
 )
 }
@@ -22,7 +24,13 @@ plot_diff_sites(
 
 \item{cscore_cutoff}{Cutoff above which the max-min c-score range between conditions' mean is considered significant.}
 
+\item{statistical_test}{Statistical test used to compute p-values.
+One of "kruskal" (wilcox is automatically used if there are 2 groups) or "t.test".}
+
 \item{adjust_pvalues_method}{Method used to adjust p-value (one of p.adjust.methods)}
+
+\item{sample_colors}{Optional named character vector mapping metadata values
+in \code{factor_column} to colors.}
 
 \item{object_only}{Return the results of the kruskal-wallis and C-score mean range in a dataframe directly.}
 }
@@ -31,12 +39,12 @@ a ggplot object.
 }
 \description{
 Display a boxplot between condition for each site where there is a sufficent difference between conditions.
-The Kruskal-Wallis p-value is displayed at the bottom left of each boxplot.
+The p-value and adjusted p-value are displayed at the bottom left of each boxplot.
 }
 \details{
 To be considered as differential, a site must follow two conditions :
 \itemize{
-\item Have a significant p-value on a Kruskal-wallis
+\item Have a significant p-value on the selected statistical
 test on c-score between conditions.
 \item Have a C-score range between conditions (max median - min mea)
 above a certain cutoff.

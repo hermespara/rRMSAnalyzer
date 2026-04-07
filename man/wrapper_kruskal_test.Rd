@@ -7,7 +7,8 @@
 wrapper_kruskal_test(
   ribo = NULL,
   adjust_pvalues_method = "fdr",
-  factor_column = NULL
+  factor_column = NULL,
+  statistical_test = "kruskal"
 )
 }
 \arguments{
@@ -16,6 +17,9 @@ wrapper_kruskal_test(
 \item{adjust_pvalues_method}{p-value adjustment method (default : "fdr")}
 
 \item{factor_column}{Metadata column used to group samples by.}
+
+\item{statistical_test}{Statistical test used to compute p-values.
+One of "kruskal" (wilcox is automatically used if there are 2 groups) or "t.test".}
 }
 \value{
 A dataframe where each site is a row and with the following column :
@@ -28,7 +32,7 @@ It cannot be called directly, use "only_df = TRUE" in plot_diff_sites instead.
 \details{
 To be considered as differential, a site must follow two conditions :
 \itemize{
-\item Have a significant p-value on a Kruskal-wallis
+\item Have a significant p-value on the selected statistical
 test on c-score between conditions.
 \item Have a C-score range between conditions (max median - min mea)
 above a certain cutoff.

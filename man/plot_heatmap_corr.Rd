@@ -4,7 +4,15 @@
 \alias{plot_heatmap_corr}
 \title{Plot a correlation heatmap from a SummarizedExperiment object.}
 \usage{
-plot_heatmap_corr(ribo, values_col, color_col = NULL)
+plot_heatmap_corr(
+  ribo,
+  values_col,
+  color_col = NULL,
+  title = "default",
+  clustering_distance = "pearson",
+  clustering_method = "ward.D2",
+  sample_colors = NULL
+)
 }
 \arguments{
 \item{ribo}{A SummarizedExperiment object.}
@@ -12,6 +20,19 @@ plot_heatmap_corr(ribo, values_col, color_col = NULL)
 \item{values_col}{Name of the column containing the value (either count or cscore).}
 
 \item{color_col}{Vector of the metadata columns’ name used for coloring samples.}
+
+\item{title}{Title to display on the heatmap. Use \code{"default"} for the
+standard title.}
+
+\item{clustering_distance}{Distance metric used for hierarchical clustering
+of both rows and columns. Default is \code{"manhattan"}.}
+
+\item{clustering_method}{Linkage method used for hierarchical clustering of
+both rows and columns. Default is \code{"ward.D2"}.}
+
+\item{sample_colors}{Optional custom colors for sample annotations. Supply a
+named character vector when \code{color_col} has length 1, or a named list
+of named character vectors when multiple metadata columns are used.}
 }
 \value{
 ComplexHeatmap object

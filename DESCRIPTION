@@ -1,7 +1,7 @@
 Package: rRMSAnalyzer
 Type: Package
 Title: Package to Analyze RiboMethSeq Data
-Version: 2.0.1
+Version: 2.0.2
 Authors@R: c(
     person("Théo","Combe", email="epirnatools@lyon.unicancer.fr", role=c("aut","cre")),
     person("Hermes","Paraqindes", role="aut"),
@@ -15,13 +15,13 @@ Authors@R: c(
     person("LabEX program", role="fnd"),
     person("Ligue Nationale Contre le Cancer", role="fnd"),
     person("Centre de Recherche en Cancérologie de Lyon", role="cph"))
-Description: A set of easy-to-use functions to analyze end read count data of RiboMethSeq (RNA 2'Ome).
+Description: A comprehensive R package to analyze and visualize rRNA 2'-O-ribose methylation (2'-O-Me), a key chemical modification essential for ribosomal function. rRMSAnalyzer provides user-friendly functions to process RiboMethSeq data, compute methylation scores (C-scores), adjust for batch effects, and generate publication-ready visualizations.
 License: GPL (>= 3)
 URL: https://github.com/RibosomeCRCL/rRMSAnalyzer,
     https://ribosomecrcl.github.io/rRMSAnalyzer/
 BugReports: https://github.com/RibosomeCRCL/rRMSAnalyzer/issues
 Depends: R (>= 3.5.0)
-Imports: dplyr, tidyr, rlang, cli, sva, ade4, ggplot2, ComplexHeatmap, colorRamp2, reshape2, scales, cowplot, SummarizedExperiment, S4Vectors, Rcpp
+Imports: dplyr, tidyr, rlang, cli, sva, ade4, ggplot2, ComplexHeatmap, colorRamp2, reshape2, scales, cowplot, SummarizedExperiment, S4Vectors, Rcpp, r3dmol, bio3d, curl
 LinkingTo: Rcpp
 LazyData: FALSE
 biocViews:

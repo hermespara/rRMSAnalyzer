@@ -7,7 +7,8 @@
 plot_most_differential_sites(
   df_of_Cscores = NULL,
   df_of_kruskal = NULL,
-  most_differential_sites = NULL
+  most_differential_sites = NULL,
+  sample_colors = NULL
 )
 }
 \arguments{
@@ -18,6 +19,9 @@ Output of extract_data().}
 
 \item{most_differential_sites}{A list of most differential sites.
 Output of select_most_differential_sites function.}
+
+\item{sample_colors}{Optional named character vector mapping group values to
+colors.}
 }
 \description{
 Using dataframes obtained from

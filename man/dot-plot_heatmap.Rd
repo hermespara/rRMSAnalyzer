@@ -12,6 +12,9 @@
   title = "default",
   cutree_rows,
   cutree_cols,
+  clustering_distance = "manhattan",
+  clustering_method = "ward.D2",
+  sample_colors = NULL,
   ...
 )
 }
@@ -29,6 +32,16 @@
 \item{cutree_rows}{number of clusters the rows are divided into, based on the hierarchical clustering (using cutree).}
 
 \item{cutree_cols}{number of clusters the columns are divided into, based on the hierarchical clustering (using cutree).}
+
+\item{clustering_distance}{Distance metric used for hierarchical clustering
+of both rows and columns. Default is \code{"manhattan"}.}
+
+\item{clustering_method}{Linkage method used for hierarchical clustering of
+both rows and columns. Default is \code{"ward.D2"}.}
+
+\item{sample_colors}{Optional custom colors for sample annotations. Supply a
+named character vector when \code{color_col} has length 1, or a named list
+of named character vectors when multiple metadata columns are used.}
 
 \item{...}{Pheatmap’s parameters}
 }

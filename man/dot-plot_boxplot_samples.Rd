@@ -10,7 +10,8 @@
   metadata,
   color_col = NA,
   outlier,
-  horizontal
+  horizontal,
+  sample_colors = NULL
 )
 }
 \arguments{

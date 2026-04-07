@@ -11,6 +11,9 @@ plot_coa(
   only_annotated = FALSE,
   title = "default",
   subtitle = "default",
+  draw_ellipses = FALSE,
+  draw_centroids = FALSE,
+  sample_colors = NULL,
   object_only = FALSE
 )
 }
@@ -28,6 +31,13 @@ to show.}
 
 \item{subtitle}{Subtitle to display on the plot. 'samples' for number of
 samples. 'none' for no subtitle.}
+
+\item{draw_ellipses}{If TRUE, draw ellipses around groups.}
+
+\item{draw_centroids}{If TRUE, draw group centroids on the plot.}
+
+\item{sample_colors}{Optional named character vector mapping metadata values
+in \code{color_col} to colors.}
 
 \item{object_only}{Return directly the full dudi.coa object, without
 generating the plot.}

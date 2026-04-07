@@ -8,7 +8,8 @@ extract_data(
   ribo,
   col = "cscore",
   position_to_rownames = FALSE,
-  only_annotated = FALSE
+  only_annotated = FALSE,
+  sites = NULL
 )
 }
 \arguments{
@@ -21,6 +22,10 @@ They will in a new column otherwise.}
 
 \item{only_annotated}{If true, return a dataframe with only annotated sites.
 Return all sites otherwise.}
+
+\item{sites}{A character vector of specific annotated site names to keep
+(e.g., \code{c("28S_Am1310", "18S_Am99")}). Cannot be used together with
+\code{only_annotated = TRUE}.}
 }
 \value{
 A position x samples dataframe. Position can be all or only

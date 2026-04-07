@@ -9,8 +9,12 @@ plot_pca(
   color_col = NULL,
   axes = c(1, 2),
   only_annotated = FALSE,
+  sites = NULL,
   title = "default",
   subtitle = "samples",
+  draw_ellipses = FALSE,
+  draw_centroids = FALSE,
+  sample_colors = NULL,
   object_only = FALSE
 )
 }
@@ -24,10 +28,21 @@ to show.}
 
 \item{only_annotated}{If TRUE, use only annotated sites to plot PCA.}
 
+\item{sites}{A character vector of specific annotated site names to use for
+PCA (e.g., \code{c("28S_Am1310", "18S_Am99")}). Cannot be used together with
+\code{only_annotated = TRUE}.}
+
 \item{title}{Title to display on the plot. 'default' for default title.}
 
 \item{subtitle}{Subtitle to display on the plot. 'samples' for number of
 samples. 'none' for no subtitle.}
+
+\item{draw_ellipses}{If TRUE, draw ellipses around groups.}
+
+\item{draw_centroids}{If TRUE, draw group centroids on the plot.}
+
+\item{sample_colors}{Optional named character vector mapping metadata values
+in \code{color_col} to colors.}
 
 \item{object_only}{Return directly the full dudi.pca object, without
 generating the plot.}
@@ -41,4 +56,5 @@ Principal component analysis of a SummarizedExperiment object
 \examples{
 data("ribo_toy")
 # plot_pca(ribo_toy,'run')
+plot_pca(ribo_toy, "run", draw_ellipses = TRUE)
 }

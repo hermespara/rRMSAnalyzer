@@ -28,7 +28,7 @@ Return a list of differential sites.
 \details{
 To be considered as differential, a site must follow two conditions :
 \itemize{
-\item Have a significant p-value on a Kruskal-wallis
+\item Have a significant p-value on the selected statistical
 test on c-score between conditions.
 \item Have a C-score range between conditions (max median - min mea)
 above a certain cutoff.

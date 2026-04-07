@@ -10,7 +10,10 @@
   color_col = NULL,
   axes = c(1, 2),
   title = "default",
-  subtitle = "default"
+  subtitle = "default",
+  draw_ellipses = FALSE,
+  draw_centroids = FALSE,
+  sample_colors = NULL
 )
 }
 \arguments{
@@ -27,11 +30,25 @@ to show.}
 
 \item{subtitle}{Subtitle to display on the plot. 'samples' for number of
 samples. 'none' for no subtitle.}
+
+\item{draw_ellipses}{If TRUE, draw ellipses around groups.}
+
+\item{draw_centroids}{If TRUE, draw group centroids on the plot.}
+
+\item{sample_colors}{Optional named character vector mapping metadata values
+in \code{color_col} to colors.}
 }
 \value{
+A ggplot object containing the COA
+
 A ggplot object containing the COA
 }
 \description{
 (internal) Plot a coa object
 }
+\keyword{(internal)}
+\keyword{Plot}
+\keyword{a}
+\keyword{coa}
 \keyword{internal}
+\keyword{object}

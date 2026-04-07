@@ -4,7 +4,15 @@
 \alias{.plot_heatmap_corr}
 \title{Internal function of plot_heatmap_corr.}
 \usage{
-.plot_heatmap_corr(cscore_matrix, metadata, color_col)
+.plot_heatmap_corr(
+  cscore_matrix,
+  metadata,
+  color_col,
+  title = "default",
+  clustering_distance = "pearson",
+  clustering_method = "ward.D2",
+  sample_colors = NULL
+)
 }
 \arguments{
 \item{cscore_matrix}{Sites x Samples C-score matrix (output of extract_data()).}

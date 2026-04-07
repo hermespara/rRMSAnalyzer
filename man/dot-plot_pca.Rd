@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_pca.R
 \name{.plot_pca}
 \alias{.plot_pca}
-\title{Plot a dudi.pca object using factoextra}
+\title{Plot a dudi.pca object using ggplot2}
 \usage{
 .plot_pca(
   dudi.pca = NULL,
@@ -10,7 +10,10 @@
   color_col = NULL,
   axes = axes,
   title = "default",
-  subtitle = "samples"
+  subtitle = "samples",
+  draw_ellipses = FALSE,
+  draw_centroids = FALSE,
+  sample_colors = NULL
 )
 }
 \arguments{
@@ -27,11 +30,18 @@ to show.}
 
 \item{subtitle}{Subtitle to display on the plot. 'samples' for number of
 samples. 'none' for no subtitle.}
+
+\item{draw_ellipses}{If TRUE, draw ellipses around groups.}
+
+\item{draw_centroids}{If TRUE, draw group centroids on the plot.}
+
+\item{sample_colors}{Optional named character vector mapping metadata values
+in \code{color_col} to colors.}
 }
 \value{
 a ggplot
 }
 \description{
-Plot a dudi.pca object using factoextra
+Plot a dudi.pca object using ggplot2
 }
 \keyword{internal}

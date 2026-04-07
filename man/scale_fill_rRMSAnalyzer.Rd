@@ -4,10 +4,13 @@
 \alias{scale_fill_rRMSAnalyzer}
 \title{Custom fill palette for rRMSAnalyzer}
 \usage{
-scale_fill_rRMSAnalyzer(...)
+scale_fill_rRMSAnalyzer(..., values = NULL)
 }
 \arguments{
 \item{...}{Arguments passed to \code{\link[ggplot2]{scale_fill_manual}}.}
+
+\item{values}{Optional named character vector of colors to use instead of
+the default rRMSAnalyzer palette.}
 }
 \value{
 A discrete fill scale.

@@ -1,15 +1,27 @@
 ---
-title: "rRMSAnalyzer: package to analyze RiboMethSeq data"
+title: "Comprehensive Guide to RiboMethSeq Analysis with rRMSAnalyzer"
 author: "Théo COMBE, Hermes PARAQINDES, Janisse KIELBASSA, Emilie THOMAS, Anthony FERRARI and Virginie MARCEL"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 abstract: > 
-  RiboMethSeq is an innovative RNAseq-based approach, which was developed in 2015 to analyze 2’O-ribose methylation (2’Ome) at all sites of ribosomal RNAs (rRNA) at once, in yeast [@birkedal2014]. This approach was then transferred to human using the Illumina technology [@Marchand2016; @Erales2017; @Marcel2021]. Briefly, the presence of 2'Ome protects the phosphodiester bond located at the 3' of the 2'Ome nucleotide from alkaline hydrolysis. Thus, the presence of 2'Ome at the given nucleotide n induces under-representation of RNA fragments starting at the nucleotide n+1  and an over-representation of RNA fragments ending at the nucleotide n-1, allowing the extrapolation of 2'Ome levels at the corresponding nucleotide position n (or C-score) varying from 0 to 1 [@birkedal2014]. <br><br> The rRMSAnalyzer package can be used for any kind of RNA and with all organisms. This package provides a set of user-friendly functions to compute C-scores from RiboMethSeq read end counts as input, adjust batch effect with ComBat-Seq, visualize the data and provide a table with the annotated human rRNA sites and their C-scores. Processing of the raw data to obtain read end counts from sequencing data was previously described [@Marchand2016]. All functions center around the \code{SummarizedExperiment} object, a standard Bioconductor structure for omics data.output:
+  **rRMSAnalyzer** is a comprehensive R package designed for the analysis and visualization of **rRNA 2'-O-ribose methylation (2'-O-Me)**, a vital chemical modification that fine-tunes ribosomal function and translation accuracy. Derived from RiboMethSeq data, the package allows for the precise quantification of 2'-O-Me levels through the computation of **C-scores**. 
+  
+  This vignette provides a step-by-step guide to using rRMSAnalyzer, covering:
+  
+  *   Data importation and creation of `SummarizedExperiment` objects.
+  *   Computation of C-scores using flexible parameters.
+  *   Quality control and batch effect correction using ComBat-Seq.
+  *   Visualization of methylation landscapes (PCA, Heatmaps).
+  *   Differential methylation analysis.
+  *   Annotation of known human rRNA methylation sites.
+  
+  The package is built on the `SummarizedExperiment` class, ensuring seamless integration with the Bioconductor ecosystem and robust data management.
+output:
    rmarkdown::html_vignette:
       toc: true
       fig_width: 5
       fig_height: 5
 vignette: >
-  %\VignetteIndexEntry{rRMSAnalyzer: package to analyze RiboMethSeq data}
+  %\VignetteIndexEntry{Comprehensive Guide to RiboMethSeq Analysis with rRMSAnalyzer}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography: references.bib
@@ -28,7 +40,16 @@ library(SummarizedExperiment)
 library(S4Vectors)
 ```
 
-The rRMSAnalyzer package can be used for any type of RNA and on all organism. This package provides a set of user-friendly functions to calculate C-scores from RiboMethSeq read end counts as input, perform quality control of the dataset, adjust for potential batch effects, and provide tools to visualize and analyze the data. In addition, a list of potentially methylated human rRNA sites is provided for analyses. 
+# Introduction
+
+Ribosomal RNA (rRNA) 2'-O-ribose methylation (2'-O-Me) is a conserved chemical modification that plays a crucial role in ribosome biogenesis and function. RiboMethSeq is a powerful RNA-seq-based approach for mapping and quantifying these modifications with single-nucleotide resolution.
+
+**rRMSAnalyzer** simplifies the analysis of RiboMethSeq data by providing a suite of tools for:
+
+*   **Quantification**: calculating C-scores from read-end counts.
+*   **Quality Control**: assessing data quality and identifying technical biases.
+*   **Correction**: adjusting for batch effects to ensure robust biological comparisons.
+*   **Visualization**: generating high-quality plots to explore methylation patterns.
 
 Raw data processing to obtain read-end counts from sequencing data can be performed using our Nextflow pipeline [ribomethseq-nf](https://github.com/RibosomeCRCL/ribomethseq-nf), as already described [@Marchand2016].
 
@@ -485,6 +506,26 @@ pca <- plot_pca(ribo_adjusted,
 )
 ```
 
+# Visualizing 2'-O-Methylation on the Ribosome Structure
+
+Understanding the spatial distribution of chemical modifications is key to unraveling their function. **rRMSAnalyzer** leverages the power of `r3dmol` to provide interactive 3D visualizations of the ribosome, mapping your methylation data directly onto the molecular structure.
+
+The `plot_3d_structure` function fetches the 3D structure (e.g., human ribosome PDB: 4UG0), highlights annotated methylation sites, and allows for interactive exploration.
+
+```{r, eval=FALSE}
+# Visualize the 3D structure of the ribosome with methylation sites highlighted
+# Note: This will generate an interactive 3D plot in your viewer or HTML report
+plot_3d_structure(ribo_adjusted,
+  pdb_id = "4UG0",
+  site_color = "red",
+  sphere_radius = 5,
+  rna_color = "spectrum",
+  show_proteins = FALSE # Hide proteins for better performance
+)
+```
+
+> **Interactive Visualization**: In the generated HTML report, you can rotate, zoom, and inspect the ribosome structure to see exactly where your modifications are located relative to functional centers.
+
 # Analytic functions for site-by-site comparison of 2'Ome levels
 
 Two cut-offs are currently used to identify RNA sites with  significantly different 2’Ome levelsè between biological conditions (Marcel et al , NAR Cancer 2021):
@@ -557,7 +598,7 @@ By default, the function provides for all the genomic RNA positions the name of 
 Here is an example of dataframe showing the summarized C-scores per modality of the “condition” variable for all the genomic RNA positions:
 
 ```{r}
-mean_tb <- mean_samples_by_conditon(ribo_adjusted,
+mean_tb <- mean_samples_by_condition(ribo_adjusted,
   value = "cscore",
   metadata_condition = "condition",
   only_annotated = TRUE

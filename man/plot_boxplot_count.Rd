@@ -4,7 +4,13 @@
 \alias{plot_boxplot_count}
 \title{Plot a boxplot of a SummarizedExperiment counts.}
 \usage{
-plot_boxplot_count(ribo, color_col = NA, outlier = TRUE, horizontal = FALSE)
+plot_boxplot_count(
+  ribo,
+  color_col = NA,
+  outlier = TRUE,
+  horizontal = FALSE,
+  sample_colors = NULL
+)
 }
 \arguments{
 \item{ribo}{A SummarizedExperiment object.}
@@ -14,6 +20,9 @@ plot_boxplot_count(ribo, color_col = NA, outlier = TRUE, horizontal = FALSE)
 \item{outlier}{Show boxplot outlier values.}
 
 \item{horizontal}{Show boxplot horizontally.}
+
+\item{sample_colors}{Optional named character vector mapping metadata values
+in \code{color_col} to colors.}
 }
 \value{
 A ggplot object.

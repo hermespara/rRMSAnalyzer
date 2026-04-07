@@ -8,9 +8,13 @@ plot_heatmap(
   ribo,
   color_col = NULL,
   only_annotated = FALSE,
-  title,
+  title = "default",
+  sites = NULL,
   cutree_rows = 4,
   cutree_cols = 2,
+  clustering_distance = "manhattan",
+  clustering_method = "ward.D2",
+  sample_colors = NULL,
   ...
 )
 }
@@ -23,14 +27,28 @@ plot_heatmap(
 
 \item{title}{Title to display on the plot. "default" for default title.}
 
+\item{sites}{A character vector of specific annotated site names to use for
+the heatmap (e.g., \code{c("28S_Am1310", "18S_Am99")}). Cannot be used
+together with \code{only_annotated = TRUE}.}
+
 \item{cutree_rows}{number of clusters the rows are divided into, based on the hierarchical clustering (using cutree).}
 
 \item{cutree_cols}{number of clusters the columns are divided into, based on the hierarchical clustering (using cutree).}
 
+\item{clustering_distance}{Distance metric used for hierarchical clustering
+of both rows and columns. Default is \code{"manhattan"}.}
+
+\item{clustering_method}{Linkage method used for hierarchical clustering of
+both rows and columns. Default is \code{"ward.D2"}.}
+
+\item{sample_colors}{Optional custom colors for sample annotations. Supply a
+named character vector when \code{color_col} has length 1, or a named list
+of named character vectors when multiple metadata columns are used.}
+
 \item{...}{Pheatmap’s parameters}
 }
 \value{
-A ggplot object of a heatmap. The distance used is manhattan and the clustering method is Ward.D2. See ComplexHeatmap doc for more details
+A ggplot object of a heatmap. See ComplexHeatmap doc for more details
 }
 \description{
 This easy function will let you display an heatmap for any given column (count or c-score). You can add an additionnal layer of information with metadata columns.

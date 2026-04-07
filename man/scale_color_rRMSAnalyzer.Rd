@@ -4,10 +4,13 @@
 \alias{scale_color_rRMSAnalyzer}
 \title{Custom color palette for rRMSAnalyzer}
 \usage{
-scale_color_rRMSAnalyzer(...)
+scale_color_rRMSAnalyzer(..., values = NULL)
 }
 \arguments{
 \item{...}{Arguments passed to \code{\link[ggplot2]{scale_color_manual}}.}
+
+\item{values}{Optional named character vector of colors to use instead of
+the default rRMSAnalyzer palette.}
 }
 \value{
 A discrete color scale.
