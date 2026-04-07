@@ -13,6 +13,7 @@
 #' @param subtitle Subtitle to display on the plot. 'samples' for number of
 #' samples. 'none' for no subtitle.
 #' @param draw_ellipses If TRUE, draw ellipses around groups.
+#' @param draw_centroids If TRUE, draw group centroids on the plot.
 #' @param object_only Return directly the full dudi.pca object, without
 #' generating the plot.
 #' @return A ggplot or a dudi.pca object if object_only is set to True.
@@ -26,6 +27,7 @@ plot_pca <- function(ribo, color_col = NULL, axes = c(1, 2),
                      only_annotated = FALSE, sites = NULL,
                      title = "default",
                      subtitle = "samples", draw_ellipses = FALSE,
+                     draw_centroids = FALSE,
                      object_only = FALSE) {
   if (missing(ribo)) {
     cli::cli_abort(c(
@@ -51,6 +53,9 @@ plot_pca <- function(ribo, color_col = NULL, axes = c(1, 2),
   }
 
   check_type(sites, "character", "sites")
+  check_type(draw_ellipses, "logical", "draw_ellipses", length = 1)
+  check_type(draw_centroids, "logical", "draw_centroids", length = 1)
+  check_type(object_only, "logical", "object_only", length = 1)
 
   pca_matrix <- extract_data(ribo, "cscore",
     position_to_rownames = TRUE,
@@ -65,7 +70,8 @@ plot_pca <- function(ribo, color_col = NULL, axes = c(1, 2),
   }
 
   facto_pca <- .plot_pca(pca_calculated, SummarizedExperiment::colData(ribo), color_col,
-    axes = axes, title = title, subtitle = subtitle, draw_ellipses = draw_ellipses
+    axes = axes, title = title, subtitle = subtitle,
+    draw_ellipses = draw_ellipses, draw_centroids = draw_centroids
   )
   return(facto_pca)
 }
@@ -93,13 +99,15 @@ plot_pca <- function(ribo, color_col = NULL, axes = c(1, 2),
 #' @param dudi.pca a dudi.pca object generated with Ade4
 #' @param metadata metadata table from SummarizedExperiment
 #' @param draw_ellipses If TRUE, draw ellipses around groups.
+#' @param draw_centroids If TRUE, draw group centroids on the plot.
 #' @inheritParams plot_pca
 #'
 #' @return a ggplot
 #'
 .plot_pca <- function(dudi.pca = NULL, metadata = NULL,
                       color_col = NULL, axes = axes, title = "default",
-                      subtitle = "samples", draw_ellipses = FALSE) {
+                      subtitle = "samples", draw_ellipses = FALSE,
+                      draw_centroids = FALSE) {
   # Prepare data for plotting
   df_pca <- data.frame(dudi.pca$li)
   colnames(df_pca) <- paste0("Axis", seq_len(ncol(df_pca)))
@@ -147,13 +155,27 @@ plot_pca <- function(ribo, color_col = NULL, axes = c(1, 2),
   p <- ggplot2::ggplot(df_pca, ggplot2::aes(x = .data[[x_axis]], y = .data[[y_axis]]))
 
   if (!identical(color_column, "none")) {
+    group_layers <- .group_ellipses(df_pca, x_axis, y_axis, color_col)
+
+    if (draw_ellipses && !is.null(group_layers$ellipses)) {
+      p <- p + ggplot2::geom_polygon(
+        data = group_layers$ellipses,
+        ggplot2::aes(x = .data[["x"]], y = .data[["y"]], group = .data[["group"]],
+          color = .data[["group"]], fill = .data[["group"]]
+        ),
+        inherit.aes = FALSE, alpha = 0.1, show.legend = FALSE
+      )
+    }
+
     p <- p + ggplot2::geom_point(ggplot2::aes(color = .data[[color_col]]), size = 3) +
       scale_color_rRMSAnalyzer() +
       scale_fill_rRMSAnalyzer()
 
-    if (draw_ellipses) {
-      p <- p + ggplot2::stat_ellipse(ggplot2::aes(color = .data[[color_col]], fill = .data[[color_col]]),
-        geom = "polygon", alpha = 0.1, show.legend = FALSE
+    if (draw_centroids && !is.null(group_layers$centroids)) {
+      p <- p + ggplot2::geom_point(
+        data = group_layers$centroids,
+        ggplot2::aes(x = .data[["x"]], y = .data[["y"]], color = .data[["group"]]),
+        inherit.aes = FALSE, shape = 4, stroke = 1.2, size = 4, show.legend = FALSE
       )
     }
   } else {

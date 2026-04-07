@@ -115,3 +115,60 @@ check_in_set <- function(x, set, name) {
     ))
   }
 }
+
+# Compute ellipse coordinates and centroids for grouped 2D data.
+.group_ellipses <- function(data, x_col, y_col, group_col,
+                            level = 0.95, npoints = 100,
+                            regularization = 1e-4) {
+  if (is.null(group_col) || !group_col %in% names(data)) {
+    return(list(ellipses = NULL, centroids = NULL))
+  }
+
+  plot_df <- data[, c(x_col, y_col, group_col), drop = FALSE]
+  colnames(plot_df) <- c("x", "y", "group")
+  plot_df <- stats::na.omit(plot_df)
+  plot_df$group <- as.character(plot_df$group)
+
+  if (!nrow(plot_df)) {
+    return(list(ellipses = NULL, centroids = NULL))
+  }
+
+  centroids <- stats::aggregate(cbind(x, y) ~ group, data = plot_df, FUN = mean)
+  group_split <- split(plot_df[, c("x", "y")], plot_df$group)
+
+  ellipses <- lapply(names(group_split), function(group_name) {
+    group_df <- group_split[[group_name]]
+    if (nrow(group_df) < 3) {
+      return(NULL)
+    }
+
+    cov_matrix <- stats::cov(group_df)
+    if (any(!is.finite(cov_matrix))) {
+      return(NULL)
+    }
+
+    diag_scale <- max(mean(diag(cov_matrix)), .Machine$double.eps)
+    cov_matrix <- cov_matrix + diag(regularization * diag_scale, 2)
+    eig <- eigen(cov_matrix, symmetric = TRUE)
+    eig$values[eig$values < .Machine$double.eps] <- .Machine$double.eps
+
+    angles <- seq(0, 2 * pi, length.out = npoints)
+    unit_circle <- rbind(cos(angles), sin(angles))
+    radius <- sqrt(stats::qchisq(level, df = 2))
+    shape <- eig$vectors %*% diag(sqrt(eig$values), nrow = 2) %*% unit_circle * radius
+    center <- c(mean(group_df$x), mean(group_df$y))
+
+    data.frame(
+      x = center[1] + shape[1, ],
+      y = center[2] + shape[2, ],
+      group = group_name
+    )
+  })
+
+  ellipses <- dplyr::bind_rows(ellipses)
+  if (!nrow(ellipses)) {
+    ellipses <- NULL
+  }
+
+  return(list(ellipses = ellipses, centroids = centroids))
+}

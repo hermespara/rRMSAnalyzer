@@ -8,6 +8,8 @@
 #' @param title Title to display on the plot. 'default' for default title.
 #' @param subtitle Subtitle to display on the plot. 'samples' for number of
 #' samples. 'none' for no subtitle.
+#' @param draw_ellipses If TRUE, draw ellipses around groups.
+#' @param draw_centroids If TRUE, draw group centroids on the plot.
 #' @param object_only Return directly the full dudi.coa object, without
 #' generating the plot.
 #' @return A ggplot or a dudi.coa object if object_only is set to True.
@@ -18,9 +20,12 @@
 #' # plot_coa(ribo = ribo_toy, color_col = 'condition')
 plot_coa <- function(ribo, color_col = NULL, axes = c(1, 2),
                      only_annotated = FALSE, title = "default",
-                     subtitle = "default", object_only = FALSE) {
+                     subtitle = "default", draw_ellipses = FALSE,
+                     draw_centroids = FALSE, object_only = FALSE) {
   check_is_se(ribo)
   check_type(only_annotated, "logical", "only_annotated", length = 1)
+  check_type(draw_ellipses, "logical", "draw_ellipses", length = 1)
+  check_type(draw_centroids, "logical", "draw_centroids", length = 1)
   check_type(object_only, "logical", "object_only", length = 1)
   if (!is.null(color_col)) {
     check_metadata(ribo, color_col)
@@ -39,7 +44,8 @@ plot_coa <- function(ribo, color_col = NULL, axes = c(1, 2),
 
   return(.plot_coa(coa_calculated, SummarizedExperiment::colData(ribo),
     color_col,
-    axes = axes, title, subtitle
+    axes = axes, title, subtitle,
+    draw_ellipses = draw_ellipses, draw_centroids = draw_centroids
   ))
 }
 
@@ -75,7 +81,8 @@ plot_coa <- function(ribo, color_col = NULL, axes = c(1, 2),
 .plot_coa <- function(dudi.coa = NULL,
                       metadata = NULL, color_col = NULL,
                       axes = c(1, 2), title = "default",
-                      subtitle = "default") {
+                      subtitle = "default", draw_ellipses = FALSE,
+                      draw_centroids = FALSE) {
   # Prepare data for plotting (samples are columns in COA of sites x samples)
   # dudi.coa on (sites x samples) -> $co are column coordinates (samples)
   df_coa <- data.frame(dudi.coa$co)
@@ -117,13 +124,30 @@ plot_coa <- function(ribo, color_col = NULL, axes = c(1, 2),
 
   # Color handling
   if (!identical(color_colname, "Black")) {
-    # color_col is a vector of values here, but for aes mapping it's better to use column name if possible
-    # but we extracted it as a vector.
-    # To use scale_color_rRMSAnalyzer properly, we should map to the column in df_coa if it exists
-    # We added metadata to df_coa, so we can use .data[[color_colname]]
+    group_layers <- .group_ellipses(df_coa, x_axis, y_axis, color_colname)
+
+    if (draw_ellipses && !is.null(group_layers$ellipses)) {
+      p <- p + ggplot2::geom_polygon(
+        data = group_layers$ellipses,
+        ggplot2::aes(x = .data[["x"]], y = .data[["y"]], group = .data[["group"]],
+          color = .data[["group"]], fill = .data[["group"]]
+        ),
+        inherit.aes = FALSE, alpha = 0.1, show.legend = FALSE
+      )
+    }
+
     p <- p + ggplot2::geom_point(ggplot2::aes(color = .data[[color_colname]]), size = 2) +
       scale_color_rRMSAnalyzer() +
+      scale_fill_rRMSAnalyzer() +
       ggplot2::labs(color = color_colname)
+
+    if (draw_centroids && !is.null(group_layers$centroids)) {
+      p <- p + ggplot2::geom_point(
+        data = group_layers$centroids,
+        ggplot2::aes(x = .data[["x"]], y = .data[["y"]], color = .data[["group"]]),
+        inherit.aes = FALSE, shape = 4, stroke = 1.2, size = 4, show.legend = FALSE
+      )
+    }
   } else {
     p <- p + ggplot2::geom_point(color = "black", size = 2)
   }
