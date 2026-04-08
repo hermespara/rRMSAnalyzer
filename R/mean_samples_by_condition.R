@@ -18,6 +18,7 @@
 #' # mean_df <- mean_samples_by_condition(ribo_toy,"count","condition")
 mean_samples_by_condition <- function(ribo, value, metadata_condition,
                                       only_annotated = FALSE) {
+  val <- NULL
   check_is_se(ribo)
   check_type(value, "character", "value", length = 1)
   check_type(metadata_condition, "character", "metadata_condition", length = 1)

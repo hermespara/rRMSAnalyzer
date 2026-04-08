@@ -13,7 +13,8 @@ remove_rna <- function(ribo, rna_to_remove) {
   check_is_se(ribo)
   check_type(rna_to_remove, "character", "rna_to_remove")
 
-  rna_names_df <- ribo@metadata$rna_names
+  metadata_list <- S4Vectors::metadata(ribo)
+  rna_names_df <- metadata_list$rna_names
   if (!all(rna_to_remove %in% rna_names_df[["current_name"]])) {
     cli::cli_abort("The RNA names given do not exist in the object")
   }
@@ -32,7 +33,8 @@ remove_rna <- function(ribo, rna_to_remove) {
   SummarizedExperiment::rowData(ribo) <- rd
 
   # Update internal metadata for rna names
-  ribo@metadata$rna_names <- rna_names_df[!(rna_names_df[["current_name"]] %in% rna_to_remove), ]
+  metadata_list$rna_names <- rna_names_df[!(rna_names_df[["current_name"]] %in% rna_to_remove), ]
+  S4Vectors::metadata(ribo) <- metadata_list
 
   return(ribo)
 }

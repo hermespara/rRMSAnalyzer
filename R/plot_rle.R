@@ -34,7 +34,7 @@
   rle_calc <- .compute_RLE(mat = mat)
   outlier_shape <- NA
   if (show_outlier) outlier_shape <- 19
-  mad <- -2 * mad(rle_calc$value, na.rm = TRUE)
+  mad <- -2 * stats::mad(rle_calc$value, na.rm = TRUE)
   rle_calc[["key"]] <- factor(rle_calc[["key"]], levels = unique(rle_calc[["key"]]))
   rle_grouped <- rle_calc %>%
     dplyr::group_by(key) %>%
@@ -49,11 +49,11 @@
     ggplot2::xlab("Sample") +
     ggplot2::ggtitle("RLE plot") +
     ggplot2::geom_hline(
-      yintercept = 2 * mad(rle_calc$value, na.rm = TRUE),
+      yintercept = 2 * stats::mad(rle_calc$value, na.rm = TRUE),
       colour = "#0072B2"
     ) + # Palette Blue
     ggplot2::geom_hline(
-      yintercept = -2 * mad(rle_calc$value, na.rm = TRUE),
+      yintercept = -2 * stats::mad(rle_calc$value, na.rm = TRUE),
       colour = "#0072B2"
     ) + # Palette Blue
     theme_rRMSAnalyzer() +
@@ -66,6 +66,8 @@
 #'
 #' @param ribo a SummarizedExperiment object.
 #' @param show_outlier Show boxplot outlier values.
+#' @param title Title to display on the plot. Use \code{"default"} for the
+#' standard title.
 #'
 #' @return A ggplot object. Samples with a median lower than median(RLE counts)-2*MAD (Median Absolute Deviation) are colored in red.
 #' @export
@@ -73,9 +75,15 @@
 #' @examples
 #' data("ribo_toy")
 #' plot_rle(ribo_toy)
-plot_rle <- function(ribo, show_outlier = TRUE) {
+plot_rle <- function(ribo, show_outlier = TRUE, title = "default") {
   check_is_se(ribo)
   check_type(show_outlier, "logical", "show_outlier", length = 1)
+  plot_title <- resolve_plot_text(
+    title,
+    default_value = "RLE plot",
+    arg_name = "title"
+  )
   rle_matrix <- extract_data(ribo, col = "count", position_to_rownames = TRUE)
-  return(.plot_rle(rle_matrix, show_outlier = show_outlier, "count"))
+  plot_to_return <- .plot_rle(rle_matrix, show_outlier = show_outlier, "count")
+  plot_to_return + ggplot2::labs(title = plot_title)
 }

@@ -132,9 +132,9 @@ plot_coa <- function(ribo, color_col = NULL, axes = c(1, 2),
   if (!identical(color_colname, "Black")) {
     group_layers <- .group_ellipses(df_coa, x_axis, y_axis, color_colname)
 
-    if (draw_ellipses && !is.null(group_layers$ellipses)) {
+    if (draw_ellipses && !is.null(group_layers$envelopes)) {
       p <- p + ggplot2::geom_polygon(
-        data = group_layers$ellipses,
+        data = group_layers$envelopes,
         ggplot2::aes(x = .data[["x"]], y = .data[["y"]], group = .data[["group"]],
           color = .data[["group"]], fill = .data[["group"]]
         ),

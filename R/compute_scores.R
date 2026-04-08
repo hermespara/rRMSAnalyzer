@@ -91,9 +91,11 @@ compute_cscore <- function(ribo = NULL, flanking = 6, method = "median",
   }
 
   SummarizedExperiment::assay(ribo, "cscore") <- cscores
-  ribo@metadata$cscore_window <- flanking
-  ribo@metadata$cscore_method <- method
-  ribo@metadata$has_cscore <- TRUE
+  metadata_list <- S4Vectors::metadata(ribo)
+  metadata_list$cscore_window <- flanking
+  metadata_list$cscore_method <- method
+  metadata_list$has_cscore <- TRUE
+  S4Vectors::metadata(ribo) <- metadata_list
 
   return(ribo)
 }

@@ -13,7 +13,8 @@ rename_rna <- function(ribo, new_names = c("5S", "5.8S", "18S", "28S")) {
   check_is_se(ribo)
   check_type(new_names, "character", "new_names")
 
-  rna_names_df <- ribo@metadata$rna_names
+  metadata_list <- S4Vectors::metadata(ribo)
+  rna_names_df <- metadata_list$rna_names
 
   if (nrow(rna_names_df) != length(new_names)) {
     cli::cli_abort("Different numbers of RNA names in your object ({nrow(rna_names_df)}) and the list given ({length(new_names)}).")
@@ -35,7 +36,7 @@ rename_rna <- function(ribo, new_names = c("5S", "5.8S", "18S", "28S")) {
   # rna_names_df$current_name[i] -> new_names[i]
 
   # We can use factor levels replacement if we align them
-  mapping <- setNames(new_names, rna_names_df$current_name)
+  mapping <- stats::setNames(new_names, rna_names_df$current_name)
 
   new_rna_col <- mapping[current_names]
 
@@ -46,7 +47,8 @@ rename_rna <- function(ribo, new_names = c("5S", "5.8S", "18S", "28S")) {
 
   # Update metadata
   rna_names_df$current_name <- new_names
-  ribo@metadata$rna_names <- rna_names_df
+  metadata_list$rna_names <- rna_names_df
+  S4Vectors::metadata(ribo) <- metadata_list
 
   return(ribo)
 }

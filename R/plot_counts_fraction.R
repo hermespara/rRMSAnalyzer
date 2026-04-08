@@ -1,6 +1,8 @@
 #' Plot count distribution among RNAs for each sample
 #'
 #' @param ribo A SummarizedExperiment object.
+#' @param title Title to display on the plot. Use \code{"default"} for the
+#' standard title.
 #'
 #' @return a ggplot object
 #' @export
@@ -8,8 +10,13 @@
 #' @examples
 #' data("ribo_toy")
 #' # plot_counts_fraction(ribo_toy)
-plot_counts_fraction <- function(ribo) {
+plot_counts_fraction <- function(ribo, title = "default") {
   check_is_se(ribo)
+  plot_title <- resolve_plot_text(
+    title,
+    default_value = "Counts distribution per sample",
+    arg_name = "title"
+  )
   # NSE fix
   samplesid <- rna <- count <- sum.counts <- NULL
 
@@ -36,7 +43,7 @@ plot_counts_fraction <- function(ribo) {
       .groups = "drop"
     )
 
-  rna_names_df <- ribo@metadata$rna_names
+  rna_names_df <- S4Vectors::metadata(ribo)$rna_names
 
   if (!is.null(rna_names_df)) {
     all_data_sums$rna <- factor(all_data_sums$rna, levels = rna_names_df$current_name)
@@ -54,7 +61,7 @@ plot_counts_fraction <- function(ribo) {
     theme_rRMSAnalyzer() +
     ggplot2::theme(axis.text.x = element_text(angle = 45, size = 7, hjust = 1)) +
     labs(
-      title = "Counts distribution per sample",
+      title = plot_title,
       x = "Sample",
       y = "Counts fraction"
     )

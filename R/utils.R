@@ -250,12 +250,12 @@ build_heatmap_annotation <- function(metadata = NULL, color_col = NULL,
   )
 }
 
-# Compute ellipse coordinates and centroids for grouped 2D data.
+# Compute group envelopes and centroids for grouped 2D data.
 .group_ellipses <- function(data, x_col, y_col, group_col,
                             level = 0.95, npoints = 100,
                             regularization = 1e-4) {
   if (is.null(group_col) || !group_col %in% names(data)) {
-    return(list(ellipses = NULL, centroids = NULL))
+    return(list(envelopes = NULL, centroids = NULL))
   }
 
   plot_df <- data[, c(x_col, y_col, group_col), drop = FALSE]
@@ -264,16 +264,27 @@ build_heatmap_annotation <- function(metadata = NULL, color_col = NULL,
   plot_df$group <- as.character(plot_df$group)
 
   if (!nrow(plot_df)) {
-    return(list(ellipses = NULL, centroids = NULL))
+    return(list(envelopes = NULL, centroids = NULL))
   }
 
   centroids <- stats::aggregate(cbind(x, y) ~ group, data = plot_df, FUN = mean)
   group_split <- split(plot_df[, c("x", "y")], plot_df$group)
 
-  ellipses <- lapply(names(group_split), function(group_name) {
+  envelopes <- lapply(names(group_split), function(group_name) {
     group_df <- group_split[[group_name]]
-    if (nrow(group_df) < 3) {
+    n_group <- nrow(group_df)
+
+    if (n_group <= 2) {
       return(NULL)
+    }
+
+    if (n_group == 3) {
+      hull_idx <- chull(group_df$x, group_df$y)
+      hull_idx <- c(hull_idx, hull_idx[1])
+      hull_df <- group_df[hull_idx, , drop = FALSE]
+      hull_df$group <- group_name
+      hull_df$envelope_type <- "convex_hull"
+      return(hull_df)
     }
 
     cov_matrix <- stats::cov(group_df)
@@ -295,14 +306,15 @@ build_heatmap_annotation <- function(metadata = NULL, color_col = NULL,
     data.frame(
       x = center[1] + shape[1, ],
       y = center[2] + shape[2, ],
-      group = group_name
+      group = group_name,
+      envelope_type = "ellipse"
     )
   })
 
-  ellipses <- dplyr::bind_rows(ellipses)
-  if (!nrow(ellipses)) {
-    ellipses <- NULL
+  envelopes <- dplyr::bind_rows(envelopes)
+  if (!nrow(envelopes)) {
+    envelopes <- NULL
   }
 
-  return(list(ellipses = ellipses, centroids = centroids))
+  return(list(envelopes = envelopes, centroids = centroids))
 }

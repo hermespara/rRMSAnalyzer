@@ -24,6 +24,10 @@
 #' One of "kruskal" (wilcox is automatically used if there are 2 groups) or "t.test".
 #' @param adjust_pvalues_method Method used to adjust p-value (one of p.adjust.methods).
 #' @param y_axis_p Which p-value to use for the y-axis. Either "p.adj" or "p.val".
+#' @param title Title to display on the plot. Use \code{"default"} for the
+#' standard title.
+#' @param subtitle Subtitle to display on the plot. Use \code{"default"} for
+#' the standard subtitle or \code{"none"} to hide it.
 #' @param object_only Return the results of the statistical test and C-score mean range in a dataframe directly, without plotting.
 #' @return a ggplot object or a dataframe if `object_only` is TRUE.
 #' @export
@@ -43,6 +47,8 @@ plot_volcano <- function(ribo, factor_column,
                          statistical_test = "kruskal",
                          adjust_pvalues_method = "fdr",
                          y_axis_p = "p.adj",
+                         title = "default",
+                         subtitle = "default",
                          object_only = FALSE) {
     check_is_se(ribo)
     check_type(factor_column, "character", "factor_column", length = 1)
@@ -57,6 +63,8 @@ plot_volcano <- function(ribo, factor_column,
     check_type(adjust_pvalues_method, "character", "adjust_pvalues_method", length = 1)
     check_type(y_axis_p, "character", "y_axis_p", length = 1)
     check_in_set(y_axis_p, c("p.adj", "p.val"), "y_axis_p")
+    check_type(title, "character", "title", length = 1)
+    check_type(subtitle, "character", "subtitle", length = 1)
     check_type(object_only, "logical", "object_only", length = 1)
 
     site <- p.val <- p.adj <- delta_cscore <- regulation <- label <- y_value <- target_condition <- NULL
@@ -113,6 +121,18 @@ plot_volcano <- function(ribo, factor_column,
     if (length(target_levels) == 0) {
         cli::cli_abort("Found {length(target_levels)} target conditions valid against the reference.")
     }
+
+    plot_title <- resolve_plot_text(
+        title,
+        default_value = "Differential sites volcano plot",
+        arg_name = "title"
+    )
+    plot_subtitle <- resolve_plot_text(
+        subtitle,
+        default_value = paste(reference_level, "vs", paste(target_levels, collapse = ", ")),
+        arg_name = "subtitle",
+        allow_none = TRUE
+    )
 
     delta_list <- list()
     for (t_lvl in target_levels) {
@@ -183,6 +203,8 @@ plot_volcano <- function(ribo, factor_column,
             "Not Significant" = "grey"
         )) +
         labs(
+            title = plot_title,
+            subtitle = plot_subtitle,
             x = paste0("Delta C-score (Target - ", reference_level, ")"),
             y = paste0("-Log10(", y_axis_p, ")"),
             color = "Significance",

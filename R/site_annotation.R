@@ -32,7 +32,7 @@ annotate_site <- function(ribo, annot, anno_rna = 2, anno_pos = 1, anno_value = 
 
   # Check if annot has the same RNA as the object
   anno_rna_names <- unique(annot[[anno_rna]])
-  ribo_rna_names <- ribo@metadata$rna_names$current_name
+  ribo_rna_names <- S4Vectors::metadata(ribo)$rna_names$current_name
   if (sum((anno_rna_names %in% ribo_rna_names)) == 0) {
     cli::cli_abort(c("Total mismatch in RNA names between annotation and your object !",
       "i" = "Object RNA names : {.val {ribo_rna_names}}.",

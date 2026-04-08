@@ -256,7 +256,7 @@ view_pdb_chains <- function(pdb_id, use_mmcif = TRUE) {
 
         tryCatch(
             {
-                download.file(cif_url, temp_file, quiet = TRUE, mode = "wb")
+                utils::download.file(cif_url, temp_file, quiet = TRUE, mode = "wb")
             },
             error = function(e) {
                 cli::cli_abort("Failed to download CIF file for {.val {pdb_id}}: {e$message}")

@@ -103,7 +103,7 @@ extract_data <- function(ribo, col = "cscore",
     rownames(df) <- position_values
   } else {
     # Add position column at the beginning
-    df <- cbind(setNames(data.frame(position_values), position_col_name), df)
+    df <- cbind(stats::setNames(data.frame(position_values), position_col_name), df)
   }
 
   return(df)

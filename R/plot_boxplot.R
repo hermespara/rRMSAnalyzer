@@ -48,7 +48,7 @@ plot_boxplot_count <- function(ribo, color_col = NA,
 #' data("human_methylated")
 #' ribo_toy <- rename_rna(ribo_toy)
 #' ribo_toy <- annotate_site(ribo_toy, human_methylated)
-#' boxplot_cscores(ribo_toy)
+#' plot_boxplot_cscores(ribo_toy)
 #'
 plot_boxplot_cscores <- function(ribo, outlier = TRUE, sort_by = c("median", "iqr", "var")[1], horizontal = FALSE) {
   check_is_se(ribo)

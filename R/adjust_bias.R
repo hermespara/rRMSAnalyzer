@@ -43,21 +43,24 @@ adjust_bias <- function(ribo, batch, ncores = 1, ...) {
     ...
   )
   ribo_updated <- .update_ribo_count_with_matrix(ribo, adjusted_matrix)
+  ribo_metadata <- S4Vectors::metadata(ribo_updated)
 
-  if (isTRUE(ribo_updated@metadata$has_cscore)) {
+  if (isTRUE(ribo_metadata$has_cscore)) {
     message(
       "Recomputing c-score with the following parameters :",
-      "\n- C-score method : ", ribo_updated@metadata$cscore_method,
-      "\n- Flanking window : ", ribo_updated@metadata$cscore_window,
+      "\n- C-score method : ", ribo_metadata$cscore_method,
+      "\n- Flanking window : ", ribo_metadata$cscore_window,
       "\n"
     )
     ribo_updated <- compute_cscore(
-      ribo_updated, ribo_updated@metadata$cscore_window,
-      ribo_updated@metadata$cscore_method, ncores
+      ribo_updated, ribo_metadata$cscore_window,
+      ribo_metadata$cscore_method, ncores
     )
+    ribo_metadata <- S4Vectors::metadata(ribo_updated)
   }
 
-  ribo_updated@metadata$combatSeq_count <- TRUE
-  ribo_updated@metadata$col_used_combatSeq <- batch
+  ribo_metadata$combatSeq_count <- TRUE
+  ribo_metadata$col_used_combatSeq <- batch
+  S4Vectors::metadata(ribo_updated) <- ribo_metadata
   return(ribo_updated)
 }

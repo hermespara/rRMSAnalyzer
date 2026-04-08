@@ -6,6 +6,10 @@
 #' @param pos Position on RNA on which the view will be centered
 #' @param samples Samples to display. "all" will display all samples.
 #' @param flanking Number of sites to display on the left/right of the selected position.
+#' @param title Title to display on the plot. Use \code{"default"} for the
+#' standard title.
+#' @param subtitle Subtitle to display on the plot. Use \code{"default"} for
+#' the standard subtitle or \code{"none"} to hide it.
 #'
 #' @return A ggplot object
 #' @export
@@ -14,16 +18,21 @@
 #' data("ribo_toy")
 #' # ribo_toy <- rename_rna(ribo = ribo_toy)
 #' # plot_counts_env(ribo = ribo_toy, rna = "5.8S", pos = 15)
-plot_counts_env <- function(ribo = NULL, rna = NULL, pos = NULL, samples = "all", flanking = 6) {
+plot_counts_env <- function(ribo = NULL, rna = NULL, pos = NULL, samples = "all",
+                            flanking = 6, title = "default",
+                            subtitle = "default") {
   new_position <- count <- NULL
 
   check_is_se(ribo)
   check_type(rna, "character", "rna", length = 1)
   check_type(pos, "numeric", "pos", length = 1)
   check_type(flanking, "numeric", "flanking", length = 1)
+  check_type(title, "character", "title", length = 1)
+  check_type(subtitle, "character", "subtitle", length = 1)
+  ribo_metadata <- S4Vectors::metadata(ribo)
 
   # check if rna is ok
-  if (!(rna %in% ribo@metadata$rna_names[["current_name"]])) {
+  if (!(rna %in% ribo_metadata$rna_names[["current_name"]])) {
     cli::cli_abort("The RNA names given do not exist in the object")
   }
 
@@ -124,6 +133,22 @@ plot_counts_env <- function(ribo = NULL, rna = NULL, pos = NULL, samples = "all"
 
   # Common plot logic...
   # Just copied and adapted:
+  default_title <- if (samples[1] == "all") {
+    paste("Count profile for", ncol(ribo), "samples")
+  } else {
+    paste("Count profile for", length(samples), "samples")
+  }
+  plot_title <- resolve_plot_text(
+    title,
+    default_value = default_title,
+    arg_name = "title"
+  )
+  plot_subtitle <- resolve_plot_text(
+    subtitle,
+    default_value = paste("RNA:", rna),
+    arg_name = "subtitle",
+    allow_none = TRUE
+  )
 
   if (samples[1] == "all") {
     plot_to_return <- ggplot(data = count_transform) +
@@ -148,8 +173,8 @@ plot_counts_env <- function(ribo = NULL, rna = NULL, pos = NULL, samples = "all"
       ) +
       theme_rRMSAnalyzer() +
       labs(
-        title = paste("Count profile for", ncol(ribo), "samples"),
-        subtitle = paste("RNA:", rna),
+        title = plot_title,
+        subtitle = plot_subtitle,
         y = "log10(count)",
         x = "Position"
       ) +
@@ -197,8 +222,8 @@ plot_counts_env <- function(ribo = NULL, rna = NULL, pos = NULL, samples = "all"
       theme_rRMSAnalyzer() +
       scale_color_rRMSAnalyzer() +
       labs(
-        title = paste("Count profile for", length(samples), "samples"),
-        subtitle = paste("RNA:", rna),
+        title = plot_title,
+        subtitle = plot_subtitle,
         y = "log10(count)",
         x = "position"
       ) +

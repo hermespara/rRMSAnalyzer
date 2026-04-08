@@ -6,6 +6,8 @@
 #' @param ribo A ribo class object containing the data
 #' @param plot Type of plot: "IQR" (default) or "boxplot"
 #' @param variance Metric to visualize: "IQR" (default) or "var" (variance)
+#' @param title Title to display on the plot. Use \code{"default"} for the
+#' standard title.
 #' @param ... Additional theme arguments for ggplot
 #'
 #' @return A ggplot object
@@ -17,12 +19,25 @@
 #' ribo_toy <- rename_rna(ribo_toy)
 #' ribo_toy <- annotate_site(ribo_toy, human_methylated)
 #' plot_sites_by_IQR(ribo = ribo_toy, plot = "IQR")
-plot_sites_by_IQR <- function(ribo = NULL, plot = "IQR", variance = "IQR", ...) {
+plot_sites_by_IQR <- function(ribo = NULL, plot = "IQR", variance = "IQR",
+                              title = "default", ...) {
+  x <- y <- site <- cscore <- NULL
   check_is_se(ribo)
   check_type(plot, "character", "plot", length = 1)
   check_type(variance, "character", "variance", length = 1)
   check_in_set(tolower(plot), c("iqr", "var", "boxplot"), "plot")
   check_in_set(tolower(variance), c("iqr", "var"), "variance")
+  plot_title <- resolve_plot_text(
+    title,
+    default_value = if (tolower(plot) == "boxplot") {
+      "C-score distribution by site"
+    } else if (tolower(variance) == "var") {
+      "Variance by annotated site"
+    } else {
+      "Interquartile range by annotated site"
+    },
+    arg_name = "title"
+  )
   # Extract C-score matrix from ribo object
   Cscore_matrix <- extract_data(ribo, col = "cscore", position_to_rownames = TRUE, only_annotated = TRUE)
 
@@ -32,7 +47,7 @@ plot_sites_by_IQR <- function(ribo = NULL, plot = "IQR", variance = "IQR", ...) 
   IQR_order_df$site <- factor(x = IQR_order_df$site, levels = unique(IQR_order_df$site))
 
   # Compute threshold for highlighting significant points (median + 2 * MAD)
-  median_2mad <- median(unique(IQR_order_df[, 1:2])[, 1]) + 2 * mad(unique(IQR_order_df[, 1:2])[, 1])
+  median_2mad <- stats::median(unique(IQR_order_df[, 1:2])[, 1]) + 2 * stats::mad(unique(IQR_order_df[, 1:2])[, 1])
 
   # Check if the requested plot type is "IQR" or "var"
   if (tolower(plot) %in% c("iqr", "var")) {
@@ -45,6 +60,7 @@ plot_sites_by_IQR <- function(ribo = NULL, plot = "IQR", variance = "IQR", ...) 
         legend.position = "top"
       ) +
       labs(
+        title = plot_title,
         x = "rRNA 2'Ome sites",
         y = ifelse(tolower(variance) == "iqr", "Interquartile Range (IQR)", "Variance"), size = 20
       ) +
@@ -64,7 +80,7 @@ plot_sites_by_IQR <- function(ribo = NULL, plot = "IQR", variance = "IQR", ...) 
 
     # Combine the scatter plot and density plot
     combined_plot <- cowplot::insert_yaxis_grob(p1, y_density, position = "right")
-    return(plot(combined_plot))
+    return(combined_plot)
   }
 
   # If "boxplot" is selected, generate a boxplot of C-score per site
@@ -77,6 +93,7 @@ plot_sites_by_IQR <- function(ribo = NULL, plot = "IQR", variance = "IQR", ...) 
         legend.position = "top"
       ) +
       labs(
+        title = plot_title,
         x = "rRNA 2'Ome sites",
         y = "Cscore", size = 20
       ) +

@@ -43,7 +43,8 @@ plot_pca <- function(ribo, color_col = NULL, axes = c(1, 2),
       "x" = "You've supplied a {.cls {class(ribo)}}."
     ))
   }
-  if (isFALSE(ribo@metadata$has_cscore)) {
+  ribo_metadata <- S4Vectors::metadata(ribo)
+  if (isFALSE(ribo_metadata$has_cscore)) {
     cli::cli_abort(c(
       "No C-score found in the object supplied in {.var ribo}!",
       "i" = "You can compute C-scores using compute_cscore function."
@@ -160,9 +161,9 @@ plot_pca <- function(ribo, color_col = NULL, axes = c(1, 2),
   if (!identical(color_column, "none")) {
     group_layers <- .group_ellipses(df_pca, x_axis, y_axis, color_col)
 
-    if (draw_ellipses && !is.null(group_layers$ellipses)) {
+    if (draw_ellipses && !is.null(group_layers$envelopes)) {
       p <- p + ggplot2::geom_polygon(
-        data = group_layers$ellipses,
+        data = group_layers$envelopes,
         ggplot2::aes(x = .data[["x"]], y = .data[["y"]], group = .data[["group"]],
           color = .data[["group"]], fill = .data[["group"]]
         ),
