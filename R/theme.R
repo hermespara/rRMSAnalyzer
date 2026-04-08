@@ -37,6 +37,16 @@ theme_rRMSAnalyzer <- function(base_size = 14, base_family = "sans") {
         )
 }
 
+# Shared default palette for categorical data across ggplot and heatmap annotations.
+.rRMSAnalyzer_palette <- function() {
+    c(
+        "#0072B2", "#D55E00", "#009E73", "#CC79A7",
+        "#E69F00", "#56B4E9", "#8C564B", "#7F7F7F",
+        "#1B9E77", "#E7298A", "#66A61E", "#E6AB02",
+        "#A6761D", "#7570B3", "#17BECF", "#F781BF"
+    )
+}
+
 #' Custom color palette for rRMSAnalyzer
 #'
 #' A colorblind-friendly palette for categorical variables.
@@ -48,10 +58,9 @@ theme_rRMSAnalyzer <- function(base_size = 14, base_family = "sans") {
 #' @import ggplot2
 #' @export
 scale_color_rRMSAnalyzer <- function(..., values = NULL) {
-    # Okabe-Ito palette (Colorblind friendly)
     palette <- values
     if (is.null(palette)) {
-        palette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999")
+        palette <- .rRMSAnalyzer_palette()
     }
     ggplot2::scale_color_manual(values = palette, ...)
 }
@@ -69,7 +78,7 @@ scale_color_rRMSAnalyzer <- function(..., values = NULL) {
 scale_fill_rRMSAnalyzer <- function(..., values = NULL) {
     palette <- values
     if (is.null(palette)) {
-        palette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999")
+        palette <- .rRMSAnalyzer_palette()
     }
     ggplot2::scale_fill_manual(values = palette, ...)
 }
