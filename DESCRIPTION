@@ -1,10 +1,10 @@
 Package: rRMSAnalyzer
 Type: Package
 Title: Package to Analyze RiboMethSeq Data
-Version: 2.0.2
+Version: 2.1.0
 Authors@R: c(
-    person("Théo","Combe", email="epirnatools@lyon.unicancer.fr", role=c("aut","cre")),
-    person("Hermes","Paraqindes", role="aut"),
+    person("Hermes","Paraqindes", email="epirnatools@lyon.unicancer.fr", role=c("aut","cre")),
+    person("Théo","Combe", role="aut"),
     person("Janice","Kielbassa", role="aut"),
     person("Virginie","Marcel", role="aut"),
     person("Émilie","Thomas", role="aut"),
@@ -15,6 +15,13 @@ Authors@R: c(
     person("LabEX program", role="fnd"),
     person("Ligue Nationale Contre le Cancer", role="fnd"),
     person("Centre de Recherche en Cancérologie de Lyon", role="cph"))
+Author: Hermes Paraqindes [aut, cre],
+  Théo Combe [aut],
+  Janice Kielbassa [aut],
+  Virginie Marcel [aut],
+  Émilie Thomas [aut],
+  Anthony Ferrari [aut]
+Maintainer: Hermes Paraqindes <epirnatools@lyon.unicancer.fr>
 Description: A comprehensive R package to analyze and visualize rRNA 2'-O-ribose methylation (2'-O-Me), a key chemical modification essential for ribosomal function. rRMSAnalyzer provides user-friendly functions to process RiboMethSeq data, compute methylation scores (C-scores), adjust for batch effects, and generate publication-ready visualizations.
 License: GPL (>= 3)
 URL: https://github.com/RibosomeCRCL/rRMSAnalyzer,
@@ -29,6 +36,7 @@ RoxygenNote: 7.3.2
 NeedsCompilation: yes
 Encoding: UTF-8
 Suggests: 
+    ggrepel,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)

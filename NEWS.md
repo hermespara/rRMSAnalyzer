@@ -1,3 +1,12 @@
+# rRMSAnalyzer 2.1.0
+
+* Normalized the plotting API across the main plotting functions, with more consistent handling of titles, subtitles, sample colors, clustering options, and returned plot objects.
+* Added support for custom sample color mappings across condition-based plots and heatmap annotations.
+* Extended heatmap plotting with site selection and user-configurable clustering distance and clustering method arguments.
+* Improved PCA and COA group overlays: ellipses are now drawn only for groups with at least 4 samples, 3-sample groups use a convex hull, and groups with 2 or fewer samples are shown without an envelope.
+* Replaced direct metadata slot access with accessor-based handling where possible.
+* Updated plot documentation and examples, fixed stale examples, and improved package-check compatibility.
+
 # rRMSAnalyzer 2.0.1
 
 * Major refactor: transitioned core data structure from `RiboClass` to `SummarizedExperiment`.
