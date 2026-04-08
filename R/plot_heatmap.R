@@ -12,6 +12,13 @@
 #' @param title Title to display on the plot. "default" for default title.
 #' @param cutree_rows number of clusters the rows are divided into, based on the hierarchical clustering (using cutree).
 #' @param cutree_cols number of clusters the columns are divided into, based on the hierarchical clustering (using cutree).
+#' @param cluster_columns Column clustering specification passed to
+#' \code{ComplexHeatmap::Heatmap()}. Can be a logical, an \code{hclust}
+#' object, or a \code{dendrogram}. Default is \code{TRUE}.
+#' @param sample_order Optional character vector specifying the exact order of
+#' samples to display in the heatmap columns.
+#' @param row_names_gp Font size for row names, passed to
+#' \code{grid::gpar(fontsize = row_names_gp)}. Default is \code{6}.
 #' @param clustering_distance Distance metric used for hierarchical clustering
 #' of both rows and columns. Default is \code{"manhattan"}.
 #' @param clustering_method Linkage method used for hierarchical clustering of
@@ -29,6 +36,9 @@
 plot_heatmap <- function(ribo, color_col = NULL, only_annotated = FALSE,
                          title = "default",
                          sites = NULL, cutree_rows = 4, cutree_cols = 2,
+                         cluster_columns = TRUE,
+                         sample_order = NULL,
+                         row_names_gp = 6,
                          clustering_distance = "manhattan",
                          clustering_method = "ward.D2",
                          sample_colors = NULL, ...) {
@@ -37,7 +47,20 @@ plot_heatmap <- function(ribo, color_col = NULL, only_annotated = FALSE,
   check_type(sites, "character", "sites")
   check_type(cutree_rows, "numeric", "cutree_rows", length = 1)
   check_type(cutree_cols, "numeric", "cutree_cols", length = 1)
+  if (!is.logical(cluster_columns) &&
+    !inherits(cluster_columns, "hclust") &&
+    !inherits(cluster_columns, "dendrogram")) {
+    cli::cli_abort(
+      "{.arg cluster_columns} must be a logical, an {.cls hclust} object, or a {.cls dendrogram}."
+    )
+  }
+  if (is.logical(cluster_columns) && length(cluster_columns) != 1) {
+    cli::cli_abort("{.arg cluster_columns} must have length 1 when supplied as a logical.")
+  }
+  check_type(sample_order, "character", "sample_order")
+  check_type(row_names_gp, "numeric", "row_names_gp", length = 1)
   validate_clustering_args(clustering_distance, clustering_method)
+  check_sample(ribo, sample_order)
 
   check_metadata(ribo, color_col)
   matrix <- extract_data(ribo, "cscore",
@@ -50,6 +73,9 @@ plot_heatmap <- function(ribo, color_col = NULL, only_annotated = FALSE,
     color_col = color_col,
     most_variant = FALSE, title = title, cutree_rows = cutree_rows,
     cutree_cols = cutree_cols,
+    cluster_columns = cluster_columns,
+    sample_order = sample_order,
+    row_names_gp = row_names_gp,
     clustering_distance = clustering_distance,
     clustering_method = clustering_method,
     sample_colors = sample_colors, ...
@@ -69,7 +95,10 @@ plot_heatmap <- function(ribo, color_col = NULL, only_annotated = FALSE,
 .plot_heatmap <- function(cscore_matrix = NULL, metadata = NULL,
                           color_col = NULL, most_variant = FALSE,
                           title = "default", cutree_rows,
-                          cutree_cols, clustering_distance = "manhattan",
+                          cutree_cols, cluster_columns = TRUE,
+                          sample_order = NULL,
+                          row_names_gp = 6,
+                          clustering_distance = "manhattan",
                           clustering_method = "ward.D2",
                           sample_colors = NULL, ...) {
   heat_colors <- grDevices::hcl.colors(7, "inferno")
@@ -88,18 +117,30 @@ plot_heatmap <- function(ribo, color_col = NULL, only_annotated = FALSE,
 
   cscore_matrix <- stats::na.omit(cscore_matrix)
   cscore_matrix <- as.matrix(cscore_matrix)
+  if (!is.null(sample_order)) {
+    cscore_matrix <- cscore_matrix[, sample_order, drop = FALSE]
+    metadata <- metadata[sample_order, , drop = FALSE]
+    if (!is.null(column_ha)) {
+      column_ha <- build_heatmap_annotation(
+        metadata = metadata,
+        color_col = color_col,
+        sample_colors = sample_colors
+      )
+    }
+  }
   ComplexHeatmap::Heatmap(cscore_matrix,
     col = heat_colors, name = "C-score",
     row_title = "Position", column_title = plot_title,
     column_title_side = "bottom",
-    cluster_rows = TRUE, cluster_columns = TRUE,
+    cluster_rows = TRUE, cluster_columns = cluster_columns,
     clustering_distance_columns = clustering_distance,
     clustering_distance_rows = clustering_distance,
     clustering_method_columns = clustering_method,
     clustering_method_rows = clustering_method,
-    row_split = cutree_rows, column_split = cutree_cols,
+    row_split = cutree_rows,
+    column_split = if (cluster_columns) cutree_cols else NULL,
     top_annotation = column_ha,
-    row_names_gp = grid::gpar(fontsize = 6),
+    row_names_gp = grid::gpar(fontsize = row_names_gp),
     ...
   )
 }
