@@ -129,7 +129,9 @@ plot_volcano <- function(ribo, factor_column,
     )
     plot_subtitle <- resolve_plot_text(
         subtitle,
-        default_value = paste(reference_level, "vs", paste(target_levels, collapse = ", ")),
+        default_value = paste(paste(target_levels,
+            collapse = ", "
+        ), "vs", reference_level),
         arg_name = "subtitle",
         allow_none = TRUE
     )
