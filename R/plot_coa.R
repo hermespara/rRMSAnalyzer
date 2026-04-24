@@ -12,6 +12,8 @@
 #' samples. 'none' for no subtitle.
 #' @param draw_ellipses If TRUE, draw ellipses around groups.
 #' @param draw_centroids If TRUE, draw group centroids on the plot.
+#' @param show_labels If TRUE, display sample names on the plot.
+#' @param label_size Size of the text labels if \code{show_labels} is TRUE.
 #' @param object_only Return directly the full dudi.coa object, without
 #' generating the plot.
 #' @return A ggplot or a dudi.coa object if object_only is set to True.
@@ -24,11 +26,14 @@ plot_coa <- function(ribo, color_col = NULL, axes = c(1, 2),
                      only_annotated = FALSE, title = "default",
                      subtitle = "default", draw_ellipses = FALSE,
                      draw_centroids = FALSE, sample_colors = NULL,
+                     show_labels = TRUE, label_size = 4,
                      object_only = FALSE) {
   check_is_se(ribo)
   check_type(only_annotated, "logical", "only_annotated", length = 1)
   check_type(draw_ellipses, "logical", "draw_ellipses", length = 1)
   check_type(draw_centroids, "logical", "draw_centroids", length = 1)
+  check_type(show_labels, "logical", "show_labels", length = 1)
+  check_type(label_size, "numeric", "label_size", length = 1)
   check_type(object_only, "logical", "object_only", length = 1)
   validate_plot_colors(ribo, color_col, sample_colors)
 
@@ -45,9 +50,9 @@ plot_coa <- function(ribo, color_col = NULL, axes = c(1, 2),
 
   return(.plot_coa(coa_calculated, SummarizedExperiment::colData(ribo),
     color_col,
-    axes = axes, title, subtitle,
+    axes = axes, title = title, subtitle = subtitle,
     draw_ellipses = draw_ellipses, draw_centroids = draw_centroids,
-    sample_colors = sample_colors
+    sample_colors = sample_colors, show_labels = show_labels, label_size = label_size
   ))
 }
 
@@ -84,7 +89,8 @@ plot_coa <- function(ribo, color_col = NULL, axes = c(1, 2),
                       metadata = NULL, color_col = NULL,
                       axes = c(1, 2), title = "default",
                       subtitle = "default", draw_ellipses = FALSE,
-                      draw_centroids = FALSE, sample_colors = NULL) {
+                      draw_centroids = FALSE, sample_colors = NULL,
+                      show_labels = TRUE, label_size = 4) {
   # Prepare data for plotting (samples are columns in COA of sites x samples)
   # dudi.coa on (sites x samples) -> $co are column coordinates (samples)
   df_coa <- data.frame(dudi.coa$co)
@@ -158,7 +164,13 @@ plot_coa <- function(ribo, color_col = NULL, axes = c(1, 2),
   }
 
   # Add text labels
-  p <- p + ggplot2::geom_text(ggplot2::aes(label = rownames(df_coa)), vjust = -1, size = 4, check_overlap = FALSE)
+  if (show_labels) {
+    if (requireNamespace("ggrepel", quietly = TRUE)) {
+      p <- p + ggrepel::geom_text_repel(ggplot2::aes(label = rownames(df_coa)), size = label_size, show.legend = FALSE)
+    } else {
+      p <- p + ggplot2::geom_text(ggplot2::aes(label = rownames(df_coa)), vjust = -1, size = label_size, check_overlap = FALSE, show.legend = FALSE)
+    }
+  }
 
   p <- p + theme_rRMSAnalyzer() +
     ggplot2::labs(
