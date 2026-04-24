@@ -16,6 +16,8 @@
 #' samples. 'none' for no subtitle.
 #' @param draw_ellipses If TRUE, draw ellipses around groups.
 #' @param draw_centroids If TRUE, draw group centroids on the plot.
+#' @param show_labels If TRUE, display sample names on the plot.
+#' @param label_size Size of the text labels if \code{show_labels} is TRUE.
 #' @param object_only Return directly the full dudi.pca object, without
 #' generating the plot.
 #' @return A ggplot or a dudi.pca object if object_only is set to True.
@@ -30,6 +32,7 @@ plot_pca <- function(ribo, color_col = NULL, axes = c(1, 2),
                      title = "default",
                      subtitle = "samples", draw_ellipses = FALSE,
                      draw_centroids = FALSE, sample_colors = NULL,
+                     show_labels = TRUE, label_size = 4,
                      object_only = FALSE) {
   if (missing(ribo)) {
     cli::cli_abort(c(
@@ -58,6 +61,8 @@ plot_pca <- function(ribo, color_col = NULL, axes = c(1, 2),
   check_type(sites, "character", "sites")
   check_type(draw_ellipses, "logical", "draw_ellipses", length = 1)
   check_type(draw_centroids, "logical", "draw_centroids", length = 1)
+  check_type(show_labels, "logical", "show_labels", length = 1)
+  check_type(label_size, "numeric", "label_size", length = 1)
   check_type(object_only, "logical", "object_only", length = 1)
 
   pca_matrix <- extract_data(ribo, "cscore",
@@ -75,7 +80,7 @@ plot_pca <- function(ribo, color_col = NULL, axes = c(1, 2),
   facto_pca <- .plot_pca(pca_calculated, SummarizedExperiment::colData(ribo), color_col,
     axes = axes, title = title, subtitle = subtitle,
     draw_ellipses = draw_ellipses, draw_centroids = draw_centroids,
-    sample_colors = sample_colors
+    sample_colors = sample_colors, show_labels = show_labels, label_size = label_size
   )
   return(facto_pca)
 }
@@ -111,7 +116,8 @@ plot_pca <- function(ribo, color_col = NULL, axes = c(1, 2),
 .plot_pca <- function(dudi.pca = NULL, metadata = NULL,
                       color_col = NULL, axes = axes, title = "default",
                       subtitle = "samples", draw_ellipses = FALSE,
-                      draw_centroids = FALSE, sample_colors = NULL) {
+                      draw_centroids = FALSE, sample_colors = NULL,
+                      show_labels = TRUE, label_size = 4) {
   # Prepare data for plotting
   df_pca <- data.frame(dudi.pca$li)
   colnames(df_pca) <- paste0("Axis", seq_len(ncol(df_pca)))
@@ -186,9 +192,13 @@ plot_pca <- function(ribo, color_col = NULL, axes = c(1, 2),
   }
 
   # Add text labels (simple repel effect or just text)
-  # Since we removed factoextra/ggrepel to save deps, we use geom_text with check_overlap or vjust
-  # Or we can check if ggrepel is available. Since we want to be lightweight, we use geom_text.
-  p <- p + ggplot2::geom_text(ggplot2::aes(label = rownames(df_pca)), vjust = -1, size = 4, check_overlap = FALSE)
+  if (show_labels) {
+    if (requireNamespace("ggrepel", quietly = TRUE)) {
+      p <- p + ggrepel::geom_text_repel(ggplot2::aes(label = rownames(df_pca)), size = label_size, show.legend = FALSE)
+    } else {
+      p <- p + ggplot2::geom_text(ggplot2::aes(label = rownames(df_pca)), vjust = -1, size = label_size, check_overlap = FALSE, show.legend = FALSE)
+    }
+  }
 
   p <- p +
     theme_rRMSAnalyzer() +
