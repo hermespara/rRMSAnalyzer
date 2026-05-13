@@ -132,6 +132,8 @@ plot_pca <- function(ribo, color_col = NULL, axes = c(1, 2),
     color_column <- "none"
   } else {
     color_column <- metadata[, color_col]
+    group_levels <- metadata_group_levels(color_column)
+    df_pca[[color_col]] <- factor(as.character(df_pca[[color_col]]), levels = group_levels)
   }
 
   # Title
@@ -178,7 +180,7 @@ plot_pca <- function(ribo, color_col = NULL, axes = c(1, 2),
     }
 
     p <- p + ggplot2::geom_point(ggplot2::aes(color = .data[[color_col]]), size = 3) +
-      plot_group_scales(sample_colors = sample_colors)
+      plot_group_scales(sample_colors = sample_colors, limits = group_levels)
 
     if (draw_centroids && !is.null(group_layers$centroids)) {
       p <- p + ggplot2::geom_point(
